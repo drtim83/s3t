@@ -1,0 +1,113 @@
+This is a comprehensive, enterprise-grade application build. Since you require a high-level, structured plan and the web-first approach, I will break this down into a **Five-Phase Architectural Blueprint**.
+
+This plan is designed to minimize risk, deliver continuous value, and ensure that every new feature builds upon a stable, solid foundation.
+
+---
+
+# 📘 V3 Project Development Blueprint (Web-First)
+
+## 🎯 Phase 1: Architectural Redefinition & Data Modeling (The Blueprint)
+
+***Goal:*** Establish a single, definitive source of truth for all project data. This phase is purely about designing the schema, APIs, and the state management system. **No UI is built yet.**
+
+**Core Deliverables:**
+1.  **System Architecture Diagram:** Flowchart showing how data moves between services (UI $\rightarrow$ API $\rightarrow$ Database $\rightarrow$ AI).
+2.  **Detailed Database Schema:** The definitive list of tables and their relationships.
+3.  **API Contracts:** Definition of every API endpoint required (e.g., `GET /api/projects/{id}` must return X data structure).
+
+**Key Tasks & Functions:**
+
+| Area | Functionality | Notes & Constraints |
+| :--- | :--- | :--- |
+| **Schema Redefinition** | **WBS Element:** Must be the primary key. Includes `Parent_ID`, `Level`, `Effort_Estimate` (Hours/Days), `Phase` (Sprint association). | This is the overhaul. All previous "Tasks" must become "WBS Elements." |
+| **Scope & Intake** | **Scope Document Table:** Links to WBS. Includes `SOW_Text`, `Version`, `Signature_Status`. | Design the data fields needed to track approvals and signing. |
+| **Collaboration** | **Discussion Table:** Must be linked to a specific WBS Element (`Target_WBS_ID`) to maintain context. | This ensures comments aren't global noise but are tied to a specific part of the scope. |
+| **Users & Roles** | **User Management:** Defines granular roles (Admin, PM, Contributor, Viewer). | Needed to enforce security (Row-Level Security in the database). |
+| **Technology Choice** | **BaaS Selection:** Finalize Supabase/Firebase setup for initial implementation. | Design the initial security rules (RLS) for data access. |
+
+***Completion Metric:*** A fully approved data model and a documented set of 50+ API endpoints ready for development.
+
+---
+
+## 🧱 Phase 2: Minimum Viable Product (Web Core)
+
+***Goal:*** Create a secure, functioning web platform that can input, store, and display the foundational project data.
+
+**Core Deliverables:**
+1.  **Functional Authentication:** Complete login/signup pages and secure session management.
+2.  **WBS Input/Editor:** A dedicated, structured form builder for manual WBS input.
+3.  **Core Task Listing:** A searchable, sortable list view of all WBS Elements, displaying name, parent, and estimated effort.
+4.  **Collaboration Module:** Basic comment thread functionality linked to a specific WBS Element.
+5.  **Code Quality:** Global search/replacement for developer names and removal of legacy AI code fragments.
+
+**Key Tasks & Functions:**
+
+*   **Implement Security:** Enforce user login and role-based access (e.g., only PM can edit WBS).
+*   **State Management:** Refactor the React codebase to manage global state (fetching data from the API defined in Phase 1, not local state).
+*   **Basic API Calls:** Wire up the UI to successfully perform basic CRUD operations (Create, Read, Update, Delete) on WBS Elements.
+
+***Completion Metric:*** A fully tested, private web portal where a team can define a project scope and track basic communication.
+
+---
+
+## 📈 Phase 3: Advanced Web Functionality (The Intelligence Layer)
+
+***Goal:*** Build the sophisticated features that transform the platform from a simple database into a true Project Management System.
+
+**Core Deliverables:**
+1.  **Gantt Chart Visualization:** Fully functional, dynamic chart that reads start/end/duration from the WBS data.
+2.  **Resource Planning:** UI that allows users to assign effort (hours) to specific users/roles per WBS element.
+3.  **Summary Dashboard:** The Executive Summary view, which aggregates data across the entire project (Total effort, remaining % budget, key milestones).
+4.  **Workflow Automation:** Implementation of the Webhook trigger logic (e.g., Status change $\rightarrow$ Trigger Function $\rightarrow$ Send Email).
+5.  **Advanced Analytics:** Charts showing effort breakdown by WBS Level, Phase, or Team.
+
+**Key Tasks & Functions:**
+
+*   **Gantt Data Engine:** Develop the logic to calculate start dates, end dates, and dependencies based on WBS hierarchy.
+*   **Webhook Service:** Integration with a transactional email provider (e.g., SendGrid) connected via a BaaS function.
+*   **Permissions Logic:** Fine-tune roles (e.g., Developers can only update "Effort Estimate"; PMs can update "Status").
+
+***Completion Metric:*** A high-fidelity web application that can manage a full project lifecycle and automate basic approvals/notifications.
+
+---
+
+## ✨ Phase 4: AI Integration & Polish (The 'Smart' Layer)
+
+***Goal:*** Integrate machine learning and intelligent automation to reduce manual effort.
+
+**Core Deliverables:**
+1.  **AI SOW Parser:** Integration of the Transformer API (Gemma/Phi).
+2.  **Draft Generation:** A feature that takes unstructured text (SOW) and calls the API to generate a preliminary, structured JSON/WBS draft.
+3.  **Summary & Query:** Implementing AI-powered features like "Ask a question about this project" or "Summarize all comments from the last month."
+4.  **Deployment Strategy:** Finalizing the deployment to the free cloud tier (e.g., optimizing functions for Vercel or Supabase Edge Functions).
+5.  **Final Polish:** Reviewing and hardening all security and user experience elements.
+
+**Key Tasks & Functions:**
+
+*   **API Wrapper:** Creating robust, rate-limited wrappers around the external AI API calls.
+*   **Validation Loop:** Implementing a critical UI step where the AI-generated WBS draft *must* be manually reviewed and approved by the user before being saved.
+
+***Completion Metric:*** The system can ingest unstructured data and produce a structured, semi-automated Project Plan.
+
+---
+
+## 📲 Phase 5: Cross-Platform Mobile Delivery
+
+***Goal:*** Replicate the entire, feature-rich web experience onto the mobile platform using Flutter or React Native.
+
+**Core Deliverables:**
+1.  **Mobile UI/UX:** Cross-platform application structure (iOS and Android) with native interaction design.
+2.  **Full Feature Parity:** Re-implementing the WBS editor, Gantt view, and Commenting module for mobile use.
+3.  **Optimized Mobile Flows:** Adjusting complex web flows (like the SOW parser) to feel intuitive on a small screen.
+4.  **Notifications:** Integration of native push notifications for critical alerts (e.g., "You were assigned a task," or "Project approved").
+
+**Key Tasks & Functions:**
+
+*   **State Management:** Reconnecting the mobile framework to the existing Phase 1/2 backend APIs.
+*   **Device-Specific Features:** Implementing features that require native device access (e.g., camera for attaching signed documents).
+
+***Completion Metric:*** A polished, ready-to-market mobile application indistinguishable in function and appearance from the web version.
+
+***
+
+This plan provides a clear, actionable path forward, ensuring that the complexity of your V3 requirements is managed systematically. Let me know which phase you'd like to deep-dive into next!
