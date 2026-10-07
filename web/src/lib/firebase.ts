@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
@@ -22,4 +23,17 @@ const app = !getApps().length
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+export let analytics: ReturnType<typeof getAnalytics> | null = null;
+if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
+  isSupported().then((supported) => {
+    if (supported) {
+      analytics = getAnalytics(app);
+    }
+  }).catch(() => {
+    // Ignore analytics init failure in non-browser or adblocked environments
+  });
+}
+
 export default app;
+
