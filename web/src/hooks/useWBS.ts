@@ -1,5 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../lib/supabase';
+import {
+  fetchWBSElements,
+  fetchWBSElement,
+  createWBSElementDoc,
+  updateWBSElementDoc,
+  deleteWBSElementDoc,
+} from '../lib/firestoreService';
 import type { WBSElement } from '../lib/database.types';
 import { buildWBSTree } from '../lib/utils';
 
@@ -12,15 +18,7 @@ export function useWBSElements(projectId: string | null) {
   return useQuery({
     queryKey: wbsKeys.all(projectId ?? ''),
     enabled: !!projectId,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('wbs_elements')
-        .select('*, assignee:profiles!assigned_to(id, full_name, avatar_url)')
-        .eq('project_id', projectId!)
-        .order('sort_order');
-      if (error) throw error;
-      return data as WBSElement[];
-    },
+    queryFn: async () => fetchWBSElements(projectId!),
     select: (data) => ({
       flat: data,
       tree: buildWBSTree(data),
@@ -32,15 +30,7 @@ export function useWBSElement(wbsId: string | null) {
   return useQuery({
     queryKey: wbsKeys.detail(wbsId ?? ''),
     enabled: !!wbsId,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('wbs_elements')
-        .select('*, assignee:profiles!assigned_to(id, full_name, avatar_url)')
-        .eq('id', wbsId!)
-        .single();
-      if (error) throw error;
-      return data as WBSElement;
-    },
+    queryFn: async () => fetchWBSElement(wbsId!),
   });
 }
 
@@ -48,9 +38,7 @@ export function useCreateWBSElement() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Partial<WBSElement>) => {
-      const { data, error } = await supabase.from('wbs_elements').insert(payload).select().single();
-      if (error) throw error;
-      return data as WBSElement;
+      return createWBSElementDoc(payload);
     },
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: wbsKeys.all(data.project_id) });
@@ -62,9 +50,7 @@ export function useUpdateWBSElement() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...payload }: Partial<WBSElement> & { id: string }) => {
-      const { data, error } = await supabase.from('wbs_elements').update(payload as unknown as never).eq('id', id).select().single();
-      if (error) throw error;
-      return data as WBSElement;
+      return updateWBSElementDoc(id, payload);
     },
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: wbsKeys.all(data.project_id) });
@@ -77,9 +63,7 @@ export function useDeleteWBSElement() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, projectId }: { id: string; projectId: string }) => {
-      const { error } = await supabase.from('wbs_elements').delete().eq('id', id);
-      if (error) throw error;
-      return { id, projectId };
+      return deleteWBSElementDoc(id, projectId);
     },
     onSuccess: ({ projectId }) => {
       qc.invalidateQueries({ queryKey: wbsKeys.all(projectId) });

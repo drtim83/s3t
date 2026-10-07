@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { fetchSharedProject } from '../lib/firestoreService';
 import type { SharedProject, SharedWBSElement } from '../lib/database.types';
 import { Zap, Clock, TrendingUp, Users } from 'lucide-react';
 
@@ -14,10 +14,8 @@ export function SharedProjectView() {
     async function load() {
       if (!token) return;
       try {
-        const { data, error: err } = await supabase.rpc('get_shared_project', { p_token: token });
-        if (err) throw err;
-        if (!data) throw new Error('Project not found or link has expired');
-        setProject(data as unknown as SharedProject);
+        const data = await fetchSharedProject(token);
+        setProject(data);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {

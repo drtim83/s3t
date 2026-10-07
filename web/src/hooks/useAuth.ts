@@ -1,16 +1,32 @@
 import { useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  sendPasswordResetEmail,
+  onAuthStateChanged,
+  updateProfile as firebaseUpdateProfile,
+} from 'firebase/auth';
+import { auth } from '../lib/firebase';
+import { getProfile, upsertProfile } from '../lib/firestoreService';
 import { useAuthStore } from '../store';
-import type { Profile } from '../lib/database.types';
 
 export function useAuth() {
   const { user, isLoading, setUser, setLoading, clearAuth } = useAuthStore();
 
-  async function loadProfile(userId: string) {
+  async function loadProfile(userId: string, email?: string | null, displayName?: string | null) {
     try {
-      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
-      if (error) console.error('Profile load error:', error);
-      setUser(data as Profile | null);
+      let profile = await getProfile(userId);
+      if (!profile) {
+        // Automatically bootstrap user profile in Firestore
+        profile = await upsertProfile({
+          id: userId,
+          full_name: displayName || email?.split('@')[0] || 'User',
+          avatar_url: null,
+          job_title: 'Solution Architect',
+        });
+      }
+      setUser(profile);
     } catch (err) {
       console.error('Unexpected profile error:', err);
       setUser(null);
@@ -20,61 +36,45 @@ export function useAuth() {
   }
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
-      if (error) {
-        console.error('Session error:', error);
-        setLoading(false);
-        return;
-      }
-      if (session?.user) {
-        await loadProfile(session.user.id);
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        await loadProfile(fbUser.uid, fbUser.email, fbUser.displayName);
       } else {
-        setLoading(false);
-      }
-    }).catch(err => {
-      console.error('Failed to get session:', err);
-      setLoading(false);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        await loadProfile(session.user.id);
-      } else if (event === 'SIGNED_OUT') {
         clearAuth();
         setLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => unsubscribe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function signIn(email: string, password: string) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    await loadProfile(credential.user.uid, credential.user.email, credential.user.displayName);
   }
 
   async function signUp(email: string, password: string, fullName: string) {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: fullName } },
+    const credential = await createUserWithEmailAndPassword(auth, email, password);
+    if (fullName) {
+      await firebaseUpdateProfile(credential.user, { displayName: fullName });
+    }
+    const profile = await upsertProfile({
+      id: credential.user.uid,
+      full_name: fullName,
+      avatar_url: null,
+      job_title: 'Solution Architect',
     });
-    if (error) throw error;
+    setUser(profile);
   }
 
   async function signOut() {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    await firebaseSignOut(auth);
+    clearAuth();
   }
 
   async function resetPassword(email: string) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset-password`,
-    });
-    if (error) throw error;
+    await sendPasswordResetEmail(auth, email);
   }
 
   return { user, isLoading, signIn, signUp, signOut, resetPassword };

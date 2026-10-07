@@ -1,26 +1,20 @@
 import { useState } from 'react';
 import { Users, Eye, Edit3, Trash2, UserPlus, Mail, Search, Crown, AlertCircle, type LucideIcon } from 'lucide-react';
 import { useUIStore, useAuthStore, useToast } from '../../store';
-import { supabase } from '../../lib/supabase';
+import {
+  fetchProjectMembers,
+  updateMemberRole,
+  removeMember,
+  addMemberByEmail,
+} from '../../lib/firestoreService';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../ui/Modal';
 import { cn } from '../../lib/utils';
-
-type ProjectRole = 'Admin' | 'Contributor' | 'Viewer';
-
-interface Member {
-  user_id: string;
-  role: ProjectRole;
-  profiles: {
-    full_name: string | null;
-    job_title: string | null;
-    avatar_url: string | null;
-  } | null;
-  auth_email?: string;
-}
+import type { ProjectRole } from '../../lib/database.types';
 
 const ROLE_CONFIG: Record<ProjectRole, { icon: LucideIcon; color: string; desc: string }> = {
   Admin:       { icon: Crown,  color: 'text-amber-400 bg-amber-400/10',  desc: 'Full access — manage members, edit everything' },
+  PM:          { icon: Crown,  color: 'text-blue-400 bg-blue-400/10',    desc: 'Project Manager — plan, assign, schedule' },
   Contributor: { icon: Edit3,  color: 'text-brand-400 bg-brand-400/10',  desc: 'Can edit WBS, rates, effort and submit approvals' },
   Viewer:      { icon: Eye,    color: 'text-muted-foreground bg-gray-400/10',    desc: 'Read-only access to all project data' },
 };
@@ -30,14 +24,7 @@ function useProjectMembers(projectId: string | null) {
   return useQuery({
     queryKey: ['project-members', projectId],
     enabled: !!projectId,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('project_members')
-        .select('user_id, role, profiles(full_name, job_title, avatar_url)')
-        .eq('project_id', projectId!);
-      if (error) throw error;
-      return (data as unknown) as Member[];
-    },
+    queryFn: async () => fetchProjectMembers(projectId!),
   });
 }
 
@@ -45,10 +32,7 @@ function useUpdateMemberRole() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ projectId, userId, role }: { projectId: string; userId: string; role: ProjectRole }) => {
-      const { error } = await supabase.from('project_members').update({ role })
-        .eq('project_id', projectId)
-        .eq('user_id', userId);
-      if (error) throw error;
+      await updateMemberRole(projectId, userId, role);
     },
     onSuccess: (_, { projectId }) => qc.invalidateQueries({ queryKey: ['project-members', projectId] }),
   });
@@ -58,12 +42,7 @@ function useRemoveMember() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ projectId, userId }: { projectId: string; userId: string }) => {
-      const { error } = await supabase
-        .from('project_members')
-        .delete()
-        .eq('project_id', projectId)
-        .eq('user_id', userId);
-      if (error) throw error;
+      await removeMember(projectId, userId);
     },
     onSuccess: (_, { projectId }) => qc.invalidateQueries({ queryKey: ['project-members', projectId] }),
   });
@@ -82,22 +61,7 @@ function InviteModal({ projectId, onClose }: { projectId: string; onClose: () =>
     if (!email.trim()) return;
     setLoading(true);
     try {
-      // Find user by email in profiles
-      const rpcClient = supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => { single: () => Promise<{ data: string | null }> };
-      const { data: userId } = await rpcClient('get_user_id_by_email', { p_email: email.trim() }).single();
-
-      if (!userId) {
-        toastError('User not found', `No account found for ${email}. Ask them to sign up first, or create their account via Supabase.`);
-        return;
-      }
-
-      const { error } = await supabase.from('project_members').insert({
-        project_id: projectId,
-        user_id: userId,
-        role,
-      });
-      if (error) throw error;
-
+      await addMemberByEmail(projectId, email.trim(), role);
       success('Member added', `${email} added as ${role}`);
       qc.invalidateQueries({ queryKey: ['project-members', projectId] });
       onClose();
@@ -112,7 +76,7 @@ function InviteModal({ projectId, onClose }: { projectId: string; onClose: () =>
     <form onSubmit={handleInvite} className="space-y-4">
       <div className="bg-brand-500/10 border border-brand-500/20 rounded-xl p-3 flex gap-2">
         <AlertCircle className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
-        <p className="text-xs text-brand-300">The user must have an existing S3T account. To create accounts, use Supabase Auth or the SQL migration scripts.</p>
+        <p className="text-xs text-brand-300">The user must have an existing S3T account with this email address.</p>
       </div>
       <div>
         <label className="label">Email Address</label>

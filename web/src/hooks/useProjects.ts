@@ -1,5 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../lib/supabase';
+import {
+  fetchMyProjects,
+  fetchProjectsByOrg,
+  fetchProject,
+  createProjectDoc,
+  updateProjectDoc,
+  deleteProjectDoc,
+  cloneProjectDoc,
+} from '../lib/firestoreService';
+import { useAuthStore } from '../store';
 import type { Project } from '../lib/database.types';
 
 // ─── Query Keys ─────────────────────────────────────────────────────────────
@@ -10,18 +19,10 @@ export const projectKeys = {
 };
 
 // ─── Queries ─────────────────────────────────────────────────────────────────
-// Fetch all projects this user can see (via RLS — member OR creator)
 export function useMyProjects() {
   return useQuery({
     queryKey: ['my-projects'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return data as Project[];
-    },
+    queryFn: async () => fetchMyProjects(),
   });
 }
 
@@ -29,15 +30,7 @@ export function useProjects(orgId: string | null) {
   return useQuery({
     queryKey: projectKeys.all(orgId ?? ''),
     enabled: !!orgId,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('org_id', orgId!)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return data as Project[];
-    },
+    queryFn: async () => fetchProjectsByOrg(orgId!),
   });
 }
 
@@ -45,29 +38,21 @@ export function useProject(projectId: string | null) {
   return useQuery({
     queryKey: projectKeys.detail(projectId ?? ''),
     enabled: !!projectId,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('id', projectId!)
-        .single();
-      if (error) throw error;
-      return data as Project;
-    },
+    queryFn: async () => fetchProject(projectId!),
   });
 }
 
 // ─── Mutations ───────────────────────────────────────────────────────────────
 export function useCreateProject() {
   const qc = useQueryClient();
+  const { user } = useAuthStore();
   return useMutation({
     mutationFn: async (payload: Partial<Project>) => {
-      const { data, error } = await supabase.from('projects').insert(payload).select().single();
-      if (error) throw error;
-      return data as Project;
+      return createProjectDoc(payload, user?.id);
     },
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: projectKeys.all(data.org_id) });
+      qc.invalidateQueries({ queryKey: ['my-projects'] });
     },
   });
 }
@@ -76,13 +61,12 @@ export function useUpdateProject() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...payload }: Partial<Project> & { id: string }) => {
-      const { data, error } = await supabase.from('projects').update(payload).eq('id', id).select().single();
-      if (error) throw error;
-      return data as Project;
+      return updateProjectDoc(id, payload);
     },
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: projectKeys.detail(data.id) });
       qc.invalidateQueries({ queryKey: projectKeys.all(data.org_id) });
+      qc.invalidateQueries({ queryKey: ['my-projects'] });
     },
   });
 }
@@ -91,9 +75,7 @@ export function useDeleteProject() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('projects').delete().eq('id', id);
-      if (error) throw error;
-      return id;
+      return deleteProjectDoc(id);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['projects'] });
@@ -104,15 +86,10 @@ export function useDeleteProject() {
 
 export function useCloneProject() {
   const qc = useQueryClient();
+  const { user } = useAuthStore();
   return useMutation({
     mutationFn: async ({ sourceId, newName, isTemplate }: { sourceId: string; newName: string; isTemplate: boolean }) => {
-      const { data, error } = await supabase.rpc('clone_project', {
-        source_id: sourceId,
-        new_name: newName,
-        p_is_template: isTemplate
-      });
-      if (error) throw error;
-      return data;
+      return cloneProjectDoc(sourceId, newName, isTemplate, user?.id);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['projects'] });
