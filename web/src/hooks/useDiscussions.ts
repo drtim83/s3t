@@ -39,7 +39,7 @@ export function useCreateDiscussion() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Partial<Discussion>) => {
-      const { data, error } = await supabase.from('discussions').insert(payload as any).select().single();
+      const { data, error } = await supabase.from('discussions').insert(payload).select().single();
       if (error) throw error;
       return data as Discussion;
     },

@@ -1,13 +1,14 @@
 import { useMemo } from 'react';
-import { TrendingUp, Users, Briefcase, Calculator } from 'lucide-react';
+import { TrendingUp, Users, Briefcase, Calculator, Download, type LucideIcon } from 'lucide-react';
 import { useUIStore } from '../../store';
 import { useEngagementStore } from '../../store/engagementStore';
 import {
   calcResource, calcTotals, formatCurrency, formatPM, formatPercent
 } from '../../lib/calculations';
+import { exportPLSummaryPDF } from '../../lib/exportPDF';
 
 function StatCard({ label, value, secondary, icon: Icon, color }: {
-  label: string; value: string; secondary: string; icon: any; color: string;
+  label: string; value: string; secondary: string; icon: LucideIcon; color: string;
 }) {
   const colors: Record<string, string> = {
     blue:    'bg-brand-500/20 text-brand-300 border-brand-500/20',
@@ -21,9 +22,9 @@ function StatCard({ label, value, secondary, icon: Icon, color }: {
         <Icon className="w-5 h-5" />
       </div>
       <div>
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{label}</p>
-        <p className="text-2xl font-black text-white tracking-tight">{value}</p>
-        <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide mt-0.5">{secondary}</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">{label}</p>
+        <p className="text-2xl font-black text-foreground tracking-tight">{value}</p>
+        <p className="text-[10px] text-muted-foreground/80 font-medium uppercase tracking-wide mt-0.5">{secondary}</p>
       </div>
     </div>
   );
@@ -53,9 +54,9 @@ export function SummaryPage() {
   if (!activeProject) {
     return (
       <div className="space-y-6 animate-fade-in">
-        <h1 className="text-2xl font-bold text-white">P&L Summary</h1>
+        <h1 className="text-2xl font-bold text-foreground">P&L Summary</h1>
         <div className="card p-16 flex items-center justify-center">
-          <p className="text-gray-400 text-sm">Select a project to view its P&L summary.</p>
+          <p className="text-muted-foreground text-sm">Select a project to view its P&L summary.</p>
         </div>
       </div>
     );
@@ -63,9 +64,27 @@ export function SummaryPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Profit & Loss Summary</h1>
-        <p className="text-sm text-gray-400 mt-0.5">{activeProject.name} · Auto-calculated from Rate Card × Effort</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Profit & Loss Summary</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">{activeProject.name} · Auto-calculated from Rate Card × Effort</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => exportPLSummaryPDF(activeProject.name, calcResources, expenses, totals, config)}
+            className="btn-secondary"
+          >
+            <Download className="w-4 h-4" />
+            Export PDF
+          </button>
+          <button
+            onClick={() => import('../../lib/exportDocx').then(m => m.generateSOW(activeProject, getResources(pid), calcResources, totals, config))}
+            className="btn-primary bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Download className="w-4 h-4" />
+            Download SOW (.docx)
+          </button>
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -78,8 +97,8 @@ export function SummaryPage() {
 
       {/* Resource Table */}
       <div className="card overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-surface-600 flex items-center justify-between">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Resource & Additional Yield</h3>
+        <div className="px-5 py-3.5 border-b border-border flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Resource & Additional Yield</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="table">
@@ -96,14 +115,14 @@ export function SummaryPage() {
             <tbody>
               {calcResources.map((res, i) => (
                 <tr key={i}>
-                  <td className="font-semibold text-white">{res.name}</td>
+                  <td className="font-semibold text-foreground">{res.name}</td>
                   <td>
                     <span className="font-mono text-brand-400 text-xs mr-2">{res.code}</span>
-                    <span className="text-gray-500 text-xs">{res.title}</span>
+                    <span className="text-muted-foreground/80 text-xs">{res.title}</span>
                   </td>
                   <td className="text-center tabular-nums">{formatPM(res.totalPM)}</td>
-                  <td className="text-right tabular-nums font-medium text-white">{formatCurrency(res.revenue)}</td>
-                  <td className="text-right tabular-nums text-gray-400">
+                  <td className="text-right tabular-nums font-medium text-foreground">{formatCurrency(res.revenue)}</td>
+                  <td className="text-right tabular-nums text-muted-foreground">
                     {formatCurrency(res.costTotal)}
                     {res.extraCost > 0 && (
                       <span className="block text-[10px] text-amber-400">incl. RM{res.extraCost.toLocaleString()} extras</span>
@@ -118,9 +137,9 @@ export function SummaryPage() {
                 <tr key={exp.id} className="bg-amber-500/5">
                   <td className="font-semibold text-amber-300 italic">{exp.description}</td>
                   <td><span className="badge-amber text-[10px] uppercase">{exp.category}</span></td>
-                  <td className="text-center text-gray-500">—</td>
-                  <td className="text-right tabular-nums text-white">{formatCurrency(exp.sell)}</td>
-                  <td className="text-right tabular-nums text-gray-400">{formatCurrency(exp.cost)}</td>
+                  <td className="text-center text-muted-foreground/80">—</td>
+                  <td className="text-right tabular-nums text-foreground">{formatCurrency(exp.sell)}</td>
+                  <td className="text-right tabular-nums text-muted-foreground">{formatCurrency(exp.cost)}</td>
                   <td className="text-right tabular-nums font-bold text-emerald-400">
                     {formatPercent(exp.sell > 0 ? (exp.sell - exp.cost) / exp.sell : 0)}
                   </td>
@@ -128,10 +147,10 @@ export function SummaryPage() {
               ))}
             </tbody>
             <tfoot>
-              <tr className="bg-surface-700 font-bold border-t border-surface-500">
-                <td colSpan={3} className="px-4 py-3 text-xs uppercase tracking-widest text-gray-500">Combined Totals</td>
-                <td className="px-4 py-3 text-right text-white tabular-nums">{formatCurrency(totals.revenue)}</td>
-                <td className="px-4 py-3 text-right text-gray-400 tabular-nums">{formatCurrency(totals.cost)}</td>
+              <tr className="bg-secondary font-bold border-t border-input">
+                <td colSpan={3} className="px-4 py-3 text-xs uppercase tracking-widest text-muted-foreground/80">Combined Totals</td>
+                <td className="px-4 py-3 text-right text-foreground tabular-nums">{formatCurrency(totals.revenue)}</td>
+                <td className="px-4 py-3 text-right text-muted-foreground tabular-nums">{formatCurrency(totals.cost)}</td>
                 <td className={`px-4 py-3 text-right tabular-nums font-black ${marginPct >= 0.3 ? 'text-emerald-400' : 'text-amber-400'}`}>
                   {formatPercent(marginPct)}
                 </td>

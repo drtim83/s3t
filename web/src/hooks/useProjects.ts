@@ -62,7 +62,7 @@ export function useCreateProject() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Partial<Project>) => {
-      const { data, error } = await supabase.from('projects').insert(payload as any).select().single();
+      const { data, error } = await supabase.from('projects').insert(payload).select().single();
       if (error) throw error;
       return data as Project;
     },
@@ -76,7 +76,7 @@ export function useUpdateProject() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...payload }: Partial<Project> & { id: string }) => {
-      const { data, error } = await supabase.from('projects').update(payload as unknown as never).eq('id', id).select().single();
+      const { data, error } = await supabase.from('projects').update(payload).eq('id', id).select().single();
       if (error) throw error;
       return data as Project;
     },
@@ -97,6 +97,26 @@ export function useDeleteProject() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['projects'] });
+      qc.invalidateQueries({ queryKey: ['my-projects'] });
+    },
+  });
+}
+
+export function useCloneProject() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ sourceId, newName, isTemplate }: { sourceId: string; newName: string; isTemplate: boolean }) => {
+      const { data, error } = await supabase.rpc('clone_project', {
+        source_id: sourceId,
+        new_name: newName,
+        p_is_template: isTemplate
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['projects'] });
+      qc.invalidateQueries({ queryKey: ['my-projects'] });
     },
   });
 }

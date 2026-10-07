@@ -6,14 +6,35 @@ import type { Profile } from '../lib/database.types';
 export function useAuth() {
   const { user, isLoading, setUser, setLoading, clearAuth } = useAuthStore();
 
+  async function loadProfile(userId: string) {
+    try {
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+      if (error) console.error('Profile load error:', error);
+      setUser(data as Profile | null);
+    } catch (err) {
+      console.error('Unexpected profile error:', err);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
+      if (error) {
+        console.error('Session error:', error);
+        setLoading(false);
+        return;
+      }
       if (session?.user) {
         await loadProfile(session.user.id);
       } else {
         setLoading(false);
       }
+    }).catch(err => {
+      console.error('Failed to get session:', err);
+      setLoading(false);
     });
 
     // Listen for auth changes
@@ -29,12 +50,6 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  async function loadProfile(userId: string) {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
-    setUser(data as Profile | null);
-    setLoading(false);
-  }
 
   async function signIn(email: string, password: string) {
     const { error } = await supabase.auth.signInWithPassword({ email, password });

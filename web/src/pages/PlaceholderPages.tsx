@@ -3,14 +3,14 @@ import { FolderKanban, FileText, Users, Settings } from 'lucide-react';
 function Placeholder({ title, icon: Icon, desc }: { title: string; icon: React.ElementType; desc: string }) {
   return (
     <div className="space-y-6 animate-fade-in">
-      <h1 className="text-2xl font-bold text-white">{title}</h1>
+      <h1 className="text-2xl font-bold text-foreground">{title}</h1>
       <div className="card p-16 flex flex-col items-center justify-center text-center gap-4">
-        <div className="w-16 h-16 rounded-2xl bg-surface-700 flex items-center justify-center">
-          <Icon className="w-8 h-8 text-gray-500" />
+        <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center">
+          <Icon className="w-8 h-8 text-muted-foreground/80" />
         </div>
         <div>
-          <p className="text-white font-semibold text-lg">{title}</p>
-          <p className="text-gray-500 text-sm mt-1">{desc}</p>
+          <p className="text-foreground font-semibold text-lg">{title}</p>
+          <p className="text-muted-foreground/80 text-sm mt-1">{desc}</p>
         </div>
         <span className="badge-brand text-xs">Coming in Phase 3</span>
       </div>

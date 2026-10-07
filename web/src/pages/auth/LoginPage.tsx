@@ -39,25 +39,25 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left panel */}
-      <div className="hidden lg:flex w-1/2 bg-gradient-dark relative overflow-hidden flex-col justify-between p-12">
+      <div className="hidden lg:flex w-1/2 bg-muted relative overflow-hidden flex-col justify-between p-12">
         <div
-          className="absolute inset-0 opacity-30"
+          className="absolute inset-0 opacity-20"
           style={{
-            background: 'radial-gradient(ellipse at 30% 50%, rgba(99,102,241,0.4) 0%, transparent 60%), radial-gradient(ellipse at 70% 20%, rgba(6,182,212,0.25) 0%, transparent 50%)',
+            background: 'radial-gradient(ellipse at 30% 50%, var(--primary) 0%, transparent 60%)',
           }}
         />
         <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-brand flex items-center justify-center shadow-glow-brand">
-            <Zap className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+            <Zap className="w-6 h-6 text-primary-foreground" />
           </div>
-          <span className="text-white font-bold text-lg">S3T</span>
+          <span className="text-foreground font-bold text-lg">S3T</span>
         </div>
         <div className="relative z-10 space-y-6">
-          <h1 className="text-4xl font-bold text-white leading-tight">
+          <h1 className="text-4xl font-bold text-foreground leading-tight">
             Enterprise project<br />management,{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-brand">redefined.</span>
+            <span className="text-primary">redefined.</span>
           </h1>
-          <p className="text-gray-400 text-lg leading-relaxed">
+          <p className="text-muted-foreground text-lg leading-relaxed">
             From WBS to Gantt charts, AI-powered scope parsing to real-time collaboration —
             everything your team needs in one platform.
           </p>
@@ -75,22 +75,49 @@ export function LoginPage() {
         <div className="w-full max-w-md space-y-8 animate-slide-up">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-gradient-brand flex items-center justify-center shadow-glow-brand">
-              <Zap className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+              <Zap className="w-6 h-6 text-primary-foreground" />
             </div>
-            <span className="text-white font-bold text-lg">S3T</span>
+            <span className="text-foreground font-bold text-lg">S3T</span>
           </div>
 
           <div>
-            <h2 className="text-3xl font-bold text-white">Sign in</h2>
-            <p className="text-gray-400 mt-2">Access your project workspace</p>
+            <h2 className="text-3xl font-bold text-foreground">Sign in</h2>
+            <p className="text-muted-foreground mt-2">Access your project workspace</p>
+          </div>
+
+          {/* Test Accounts Quick Login */}
+          <div className="card p-4 border-brand-500/20 bg-brand-500/5 space-y-3">
+            <p className="text-xs font-semibold text-foreground uppercase tracking-widest">Test Accounts</p>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { role: 'Admin', email: 'admin@s3t-demo.com' },
+                { role: 'Pre Sales Solution Architect', email: 'user@s3t-demo.com' },
+                { role: 'Approver', email: 'approver@s3t-demo.com' },
+                { role: 'Auditor', email: 'auditor@s3t-demo.com' }
+              ].map(acc => (
+                <button
+                  key={acc.role}
+                  type="button"
+                  onClick={() => {
+                    setEmail(acc.email);
+                    setPassword('Test1234!');
+                  }}
+                  className="text-left p-2 rounded-lg border border-border hover:border-brand-500/50 hover:bg-brand-500/10 transition-colors"
+                >
+                  <p className="text-xs font-bold text-foreground">{acc.role}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{acc.email}</p>
+                </button>
+              ))}
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-1 text-right">Password: Test1234!</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label htmlFor="email" className="label">Email address</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/80" />
                 <input
                   id="email"
                   type="email"
@@ -107,12 +134,12 @@ export function LoginPage() {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label htmlFor="password" className="label mb-0">Password</label>
-                <Link to="/auth/forgot-password" className="text-xs text-brand-400 hover:text-brand-300 transition-colors">
+                <Link to="/auth/forgot-password" className="text-xs text-primary hover:text-primary/80 transition-colors">
                   Forgot password?
                 </Link>
               </div>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/80" />
                 <input
                   id="password"
                   type={showPw ? 'text' : 'password'}
@@ -125,7 +152,7 @@ export function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/80 hover:text-foreground transition-colors"
                 >
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -144,9 +171,9 @@ export function LoginPage() {
             </button>
           </form>
 
-          <p className="text-center text-gray-500 text-sm">
+          <p className="text-center text-muted-foreground/80 text-sm">
             Don&apos;t have an account?{' '}
-            <Link to="/auth/signup" className="text-brand-400 hover:text-brand-300 font-medium transition-colors">
+            <Link to="/auth/signup" className="text-primary hover:text-primary/80 font-medium transition-colors">
               Create one
             </Link>
           </p>

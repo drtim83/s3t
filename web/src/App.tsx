@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, MutationCache, QueryCache } from '@tanstack/react-query';
 import { AppLayout } from './components/layout/AppLayout';
 import { ProtectedRoute, PublicOnlyRoute } from './components/auth/RouteGuards';
+import { useNotifStore } from './store';
 import { LoginPage } from './pages/auth/LoginPage';
 import { SignupPage } from './pages/auth/SignupPage';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
@@ -21,8 +22,11 @@ import { GanttPage } from './components/gantt/GanttPage';
 import { WBSAnalyticsPage } from './components/analytics/WBSAnalyticsPage';
 import { WorkflowPage } from './components/workflow/WorkflowPage';
 import { HelpPage } from './components/help/HelpPage';
+import { AISOWParserPage } from './components/ai/AISOWParserPage';
+import { UserManagementPage } from './components/users/UserManagementPage';
 import { NotFoundPage } from './pages/PlaceholderPages';
 import { useAuth } from './hooks/useAuth';
+import { SharedProjectView } from './pages/SharedProjectView';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,6 +36,26 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
     },
   },
+  mutationCache: new MutationCache({
+    onError: (error) => {
+      console.error('Global Mutation Error:', error);
+      useNotifStore.getState().addToast({
+        type: 'error',
+        title: 'Operation failed',
+        message: error instanceof Error ? error.message : 'An unexpected error occurred',
+      });
+    },
+  }),
+  queryCache: new QueryCache({
+    onError: (error) => {
+      console.error('Global Query Error:', error);
+      useNotifStore.getState().addToast({
+        type: 'error',
+        title: 'Data load failed',
+        message: error instanceof Error ? error.message : 'Could not fetch data',
+      });
+    },
+  }),
 });
 
 function AuthInitializer({ children }: { children: React.ReactNode }) {
@@ -51,6 +75,9 @@ export default function App() {
               <Route path="/auth/signup"          element={<SignupPage />} />
               <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
             </Route>
+
+            {/* Shared routes */}
+            <Route path="/share/:token" element={<SharedProjectView />} />
 
             {/* Protected S3T app routes */}
             <Route element={<ProtectedRoute />}>
@@ -72,6 +99,8 @@ export default function App() {
                 <Route path="/wbs-analytics" element={<WBSAnalyticsPage />} />
                 <Route path="/workflow"       element={<WorkflowPage />} />
                 <Route path="/help"           element={<HelpPage />} />
+                <Route path="/ai-parser"      element={<AISOWParserPage />} />
+                <Route path="/users"          element={<UserManagementPage />} />
                 <Route path="/discussions"  element={<DiscussionsPage />} />
               </Route>
             </Route>

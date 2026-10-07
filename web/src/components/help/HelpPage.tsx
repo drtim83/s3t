@@ -48,12 +48,12 @@ export function HelpPage() {
     <div className="space-y-8 animate-fade-in max-w-5xl">
       {/* Header */}
       <div className="flex items-start gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-brand flex items-center justify-center shadow-glow-brand shrink-0">
-          <Zap className="w-6 h-6 text-white" />
+        <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-sm shrink-0">
+          <Zap className="w-6 h-6 text-foreground" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-white">S3T — Solution Sizing & Scoping Tool</h1>
-          <p className="text-gray-400 mt-1 text-sm">User Guide · Created by Dr Ming Chan Tok · 1 May 2026</p>
+          <h1 className="text-2xl font-bold text-foreground">S3T — Solution Sizing & Scoping Tool</h1>
+          <p className="text-muted-foreground mt-1 text-sm">User Guide · Created by Dr Ming Chan Tok · 1 May 2026</p>
         </div>
       </div>
 
@@ -61,24 +61,24 @@ export function HelpPage() {
       <div className="glass p-6 space-y-3">
         <div className="flex items-center gap-2">
           <BookOpen className="w-4 h-4 text-brand-400" />
-          <h2 className="text-sm font-bold text-white">What is S3T?</h2>
+          <h2 className="text-sm font-bold text-foreground">What is S3T?</h2>
         </div>
-        <p className="text-sm text-gray-400 leading-relaxed">
-          S3T is an enterprise financial sizing and project scoping tool. It replaces manual Excel-based estimation workbooks with a real-time, web-based platform. Start by building a <strong className="text-white">Rate Card</strong>, assign resources in the <strong className="text-white">Effort Plan</strong>, and the <strong className="text-white">P&L Summary</strong> automatically computes your revenue, cost, and margin. Use the <strong className="text-white">Simulator</strong> to model scenarios, and the <strong className="text-white">Approval</strong> module for governance sign-off.
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          S3T is an enterprise financial sizing and project scoping tool. It replaces manual Excel-based estimation workbooks with a real-time, web-based platform. Start by building a <strong className="text-foreground">Rate Card</strong>, assign resources in the <strong className="text-foreground">Effort Plan</strong>, and the <strong className="text-foreground">P&L Summary</strong> automatically computes your revenue, cost, and margin. Use the <strong className="text-foreground">Simulator</strong> to model scenarios, and the <strong className="text-foreground">Approval</strong> module for governance sign-off.
         </p>
       </div>
 
       {/* Getting Started */}
       <div className="card p-6 space-y-4">
-        <h2 className="text-sm font-bold text-white uppercase tracking-widest">⚡ Getting Started (Recommended Flow)</h2>
+        <h2 className="text-sm font-bold text-foreground uppercase tracking-widest">⚡ Getting Started (Recommended Flow)</h2>
         <div className="space-y-2">
           {gettingStarted.map(item => (
             <div key={item.step} className="flex items-start gap-3">
               <span className="w-6 h-6 rounded-full bg-brand-600/30 text-brand-400 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">
                 {item.step}
               </span>
-              <p className="text-sm text-gray-400 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: item.text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>') }}
+              <p className="text-sm text-muted-foreground leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: item.text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }}
               />
             </div>
           ))}
@@ -88,7 +88,7 @@ export function HelpPage() {
       {/* Feature sections */}
       {sections.map(section => (
         <div key={section.title} className={`card p-6 space-y-4 border ${section.color}`}>
-          <h2 className="text-sm font-bold text-white">{section.title}</h2>
+          <h2 className="text-sm font-bold text-foreground">{section.title}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {section.items.map(item => (
               <button
@@ -96,15 +96,15 @@ export function HelpPage() {
                 onClick={() => navigate(item.route)}
                 className="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left group"
               >
-                <div className="w-8 h-8 rounded-lg bg-surface-700 flex items-center justify-center shrink-0 group-hover:bg-brand-600/20 transition-colors">
-                  <item.icon className="w-4 h-4 text-gray-400 group-hover:text-brand-400 transition-colors" />
+                <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shrink-0 group-hover:bg-brand-600/20 transition-colors">
+                  <item.icon className="w-4 h-4 text-muted-foreground group-hover:text-brand-400 transition-colors" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1">
-                    <p className="text-sm font-semibold text-white group-hover:text-brand-300 transition-colors">{item.label}</p>
+                    <p className="text-sm font-semibold text-foreground group-hover:text-brand-300 transition-colors">{item.label}</p>
                     <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-brand-400 transition-colors" />
                   </div>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
+                  <p className="text-xs text-muted-foreground/80 mt-0.5 leading-relaxed">{item.desc}</p>
                 </div>
               </button>
             ))}
@@ -113,7 +113,7 @@ export function HelpPage() {
       ))}
 
       {/* Footer */}
-      <div className="text-center py-4 border-t border-surface-600">
+      <div className="text-center py-4 border-t border-border">
         <p className="text-xs text-gray-600">S3T v1.0 · Created by Dr Ming Chan Tok · © 1 May 2026 · Built on React + Supabase + Netlify</p>
       </div>
     </div>

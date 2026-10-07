@@ -1,5 +1,5 @@
-// S3T — Solution Sizing & Scoping Tool
-// Calculation Engine (ported from original E3T by Dr Ming Chan Tok, 1 May 2026)
+// S3T — Solutioning, Sizing and Scoping Tool
+// Calculation Engine (by Dr Ming Chan Tok)
 
 export interface RateCardItem {
   id?: string;

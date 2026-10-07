@@ -99,7 +99,7 @@ export function GanttChart({ elements, projectStart, projectEnd }: GanttChartPro
 
   if (tasks.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500">
+      <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground/80">
         <p className="text-sm">No WBS elements have start/end dates set.</p>
         <p className="text-xs text-gray-600">Add dates to WBS elements in the WBS Editor to see the Gantt chart.</p>
       </div>
@@ -226,11 +226,11 @@ export function GanttChart({ elements, projectStart, projectEnd }: GanttChartPro
       {/* Tooltip */}
       {tooltip && (
         <div
-          className="absolute z-50 pointer-events-none bg-surface-800 border border-surface-600 rounded-xl shadow-xl p-3 text-xs min-w-[180px]"
+          className="absolute z-50 pointer-events-none bg-card border border-border rounded-xl shadow-xl p-3 text-xs min-w-[180px]"
           style={{ left: tooltip.x + 12, top: tooltip.y - 10 }}
         >
-          <p className="font-bold text-white mb-1">{tooltip.task.name}</p>
-          <div className="space-y-0.5 text-gray-400">
+          <p className="font-bold text-foreground mb-1">{tooltip.task.name}</p>
+          <div className="space-y-0.5 text-muted-foreground">
             <p>Code: <span className="text-brand-400 font-mono">{tooltip.task.code}</span></p>
             <p>Phase: {tooltip.task.phase}</p>
             <p>Status: <span className="capitalize">{tooltip.task.status.replace('_', ' ')}</span></p>
@@ -242,7 +242,7 @@ export function GanttChart({ elements, projectStart, projectEnd }: GanttChartPro
       )}
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-4 mt-3 text-[10px] text-gray-500">
+      <div className="flex flex-wrap items-center gap-4 mt-3 text-[10px] text-muted-foreground/80">
         {Object.entries(STATUS_COLORS).map(([s, c]) => (
           <span key={s} className="flex items-center gap-1.5 capitalize">
             <span className="w-3 h-3 rounded-sm inline-block" style={{ background: c }} />

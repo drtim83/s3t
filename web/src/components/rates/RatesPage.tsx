@@ -24,10 +24,11 @@ export function RatesPage() {
     );
   }, [rateCard, search]);
 
-  const update = (idx: number, field: keyof RateCardItem, val: any) => {
+  const update = <K extends keyof RateCardItem>(idx: number, field: K, val: RateCardItem[K]) => {
     const orig = rateCard.findIndex(r => r.code === filtered[idx].code);
+    if (orig === -1) return;
     const next = [...rateCard];
-    (next[orig] as any)[field] = val;
+    next[orig] = { ...next[orig], [field]: val };
     setRateCard(pid, next);
   };
 
@@ -49,9 +50,9 @@ export function RatesPage() {
   if (!activeProject) {
     return (
       <div className="space-y-6 animate-fade-in">
-        <h1 className="text-2xl font-bold text-white">Rate Card</h1>
+        <h1 className="text-2xl font-bold text-foreground">Rate Card</h1>
         <div className="card p-16 flex flex-col items-center justify-center text-center gap-4">
-          <p className="text-gray-400 text-sm">Select a project to manage its rate card.</p>
+          <p className="text-muted-foreground text-sm">Select a project to manage its rate card.</p>
         </div>
       </div>
     );
@@ -61,8 +62,8 @@ export function RatesPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Standard Rate Card</h1>
-          <p className="text-sm text-gray-400 mt-0.5">{activeProject.name} · MYR / hr</p>
+          <h1 className="text-2xl font-bold text-foreground">Standard Rate Card</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">{activeProject.name} · MYR / hr</p>
         </div>
         <button onClick={addRole} className="btn-primary">
           <Plus className="w-4 h-4" /> Add Role
@@ -70,15 +71,15 @@ export function RatesPage() {
       </div>
 
       <div className="card overflow-hidden">
-        <div className="flex items-center gap-3 p-4 border-b border-surface-600">
-          <Search className="w-4 h-4 text-gray-500 shrink-0" />
+        <div className="flex items-center gap-3 p-4 border-b border-border">
+          <Search className="w-4 h-4 text-muted-foreground/80 shrink-0" />
           <input
-            className="bg-transparent text-sm text-white placeholder-gray-500 outline-none w-full"
+            className="bg-transparent text-sm text-foreground placeholder-gray-500 outline-none w-full"
             placeholder="Search by code, title or category…"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <span className="text-xs text-gray-500 shrink-0">{filtered.length} roles</span>
+          <span className="text-xs text-muted-foreground/80 shrink-0">{filtered.length} roles</span>
         </div>
 
         <div className="overflow-x-auto">
@@ -104,14 +105,14 @@ export function RatesPage() {
                     </td>
                     <td>
                       <input
-                        className="bg-transparent border-b border-transparent hover:border-surface-500 focus:border-brand-500 outline-none text-white text-sm w-full transition-colors py-0.5"
+                        className="bg-transparent border-b border-transparent hover:border-input focus:border-brand-500 outline-none text-foreground text-sm w-full transition-colors py-0.5"
                         value={item.title}
                         onChange={e => update(i, 'title', e.target.value)}
                       />
                     </td>
                     <td>
                       <select
-                        className="bg-surface-700 border border-surface-500 rounded-lg px-2 py-1 text-xs text-white outline-none focus:border-brand-500"
+                        className="bg-secondary border border-input rounded-lg px-2 py-1 text-xs text-foreground outline-none focus:border-brand-500"
                         value={item.category}
                         onChange={e => update(i, 'category', e.target.value)}
                       >
@@ -122,7 +123,7 @@ export function RatesPage() {
                       <input
                         type="number"
                         step="0.01"
-                        className="bg-surface-700 border border-surface-600 rounded-lg px-2 py-1 text-xs text-right text-white outline-none focus:border-brand-500 w-24 tabular-nums"
+                        className="bg-secondary border border-border rounded-lg px-2 py-1 text-xs text-right text-foreground outline-none focus:border-brand-500 w-24 tabular-nums"
                         value={item.list_price}
                         onChange={e => update(i, 'list_price', parseFloat(e.target.value) || 0)}
                       />
@@ -131,7 +132,7 @@ export function RatesPage() {
                       <input
                         type="number"
                         step="0.01"
-                        className="bg-surface-700 border border-surface-600 rounded-lg px-2 py-1 text-xs text-right text-white outline-none focus:border-brand-500 w-24 tabular-nums"
+                        className="bg-secondary border border-border rounded-lg px-2 py-1 text-xs text-right text-foreground outline-none focus:border-brand-500 w-24 tabular-nums"
                         value={item.cost_price}
                         onChange={e => update(i, 'cost_price', parseFloat(e.target.value) || 0)}
                       />
@@ -157,7 +158,7 @@ export function RatesPage() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="py-12 text-center text-gray-500 text-sm">
+          <div className="py-12 text-center text-muted-foreground/80 text-sm">
             {search ? 'No roles match your search.' : 'No roles in rate card. Click "Add Role" to start.'}
           </div>
         )}

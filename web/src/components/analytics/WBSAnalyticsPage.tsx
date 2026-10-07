@@ -23,7 +23,7 @@ export function WBSAnalyticsPage() {
   const { getResources, getRateCard, getConfig, getExpenses } = useEngagementStore();
 
   const pid = activeProject?.id ?? '';
-  const flat = data?.flat ?? [];
+  const flat = useMemo(() => data?.flat ?? [], [data?.flat]);
 
   // S3T Financial data
   const resources = getResources(pid);
@@ -81,9 +81,9 @@ export function WBSAnalyticsPage() {
   if (!activeProject) {
     return (
       <div className="space-y-6 animate-fade-in">
-        <h1 className="text-2xl font-bold text-white">Advanced Analytics</h1>
+        <h1 className="text-2xl font-bold text-foreground">Advanced Analytics</h1>
         <div className="card p-16 flex items-center justify-center">
-          <p className="text-gray-400 text-sm">Select a project to view analytics.</p>
+          <p className="text-muted-foreground text-sm">Select a project to view analytics.</p>
         </div>
       </div>
     );
@@ -92,8 +92,8 @@ export function WBSAnalyticsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-white">Advanced Analytics</h1>
-        <p className="text-sm text-gray-400 mt-0.5">{activeProject.name} · WBS + Financial overview</p>
+        <h1 className="text-2xl font-bold text-foreground">Advanced Analytics</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">{activeProject.name} · WBS + Financial overview</p>
       </div>
 
       {/* Combined KPI banner */}
@@ -107,7 +107,7 @@ export function WBSAnalyticsPage() {
           { label: 'Net Margin',     value: s3tTotals.revenue > 0 ? formatPercent(marginPct) : '—', color: marginPct >= 0.3 ? 'text-emerald-400' : 'text-amber-400' },
         ].map(kpi => (
           <div key={kpi.label} className="card p-4">
-            <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">{kpi.label}</p>
+            <p className="text-[10px] text-muted-foreground/80 uppercase tracking-widest font-bold mb-1">{kpi.label}</p>
             <p className={`text-xl font-black ${kpi.color} tabular-nums`}>{kpi.value}</p>
           </div>
         ))}
@@ -116,9 +116,9 @@ export function WBSAnalyticsPage() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Effort by Phase */}
         <div className="card p-6 space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Effort by Phase / Sprint</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Effort by Phase / Sprint</h3>
           {effortByPhase.length === 0 ? (
-            <p className="text-gray-500 text-sm py-8 text-center">No phase data. Add phases in the WBS Editor.</p>
+            <p className="text-muted-foreground/80 text-sm py-8 text-center">No phase data. Add phases in the WBS Editor.</p>
           ) : (
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -126,7 +126,7 @@ export function WBSAnalyticsPage() {
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.04)" />
                   <XAxis type="number" unit="h" fontSize={9} tick={{ fill: '#6b7280' }} />
                   <YAxis type="category" dataKey="name" fontSize={9} width={80} tick={{ fill: '#9ca3af' }} />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any) => `${Number(v)}h`} />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: unknown) => `${Number(v)}h`} />
                   <Bar dataKey="hours" name="Hours" fill="#6366f1" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -136,9 +136,9 @@ export function WBSAnalyticsPage() {
 
         {/* Effort by Level */}
         <div className="card p-6 space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Effort by WBS Level</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Effort by WBS Level</h3>
           {effortByLevel.length === 0 ? (
-            <p className="text-gray-500 text-sm py-8 text-center">No effort data. Set effort hours in the WBS Editor.</p>
+            <p className="text-muted-foreground/80 text-sm py-8 text-center">No effort data. Set effort hours in the WBS Editor.</p>
           ) : (
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -146,7 +146,7 @@ export function WBSAnalyticsPage() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.04)" />
                   <XAxis dataKey="name" fontSize={10} tick={{ fill: '#6b7280' }} />
                   <YAxis fontSize={9} tick={{ fill: '#6b7280' }} unit="h" />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any) => `${Number(v)}h`} />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: unknown) => `${Number(v)}h`} />
                   <Bar dataKey="hours" name="Hours" fill="#10b981" radius={[4,4,0,0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -156,7 +156,7 @@ export function WBSAnalyticsPage() {
 
         {/* Status Distribution Pie */}
         <div className="card p-6 space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Status Distribution</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Status Distribution</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -172,7 +172,7 @@ export function WBSAnalyticsPage() {
 
         {/* Budget burn / completion */}
         <div className="glass p-8 flex flex-col justify-center space-y-6">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Budget & Delivery Health</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Budget & Delivery Health</h3>
           {[
             { label: 'Hours Completed', pct: totalHours > 0 ? completedHours / totalHours : 0, color: 'bg-emerald-500', fmt: `${Math.round(completedHours)}h / ${Math.round(totalHours)}h` },
             { label: 'On-Time Delivery', pct: flat.length > 0 ? (flat.length - overdue) / flat.length : 1, color: overdue > 0 ? 'bg-red-500' : 'bg-emerald-500', fmt: `${flat.length - overdue} / ${flat.length} on track` },
@@ -180,8 +180,8 @@ export function WBSAnalyticsPage() {
           ].map(item => (
             <div key={item.label} className="space-y-1.5">
               <div className="flex justify-between text-xs">
-                <span className="text-gray-400">{item.label}</span>
-                <span className="text-white font-bold">{item.fmt}</span>
+                <span className="text-muted-foreground">{item.label}</span>
+                <span className="text-foreground font-bold">{item.fmt}</span>
               </div>
               <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                 <div className={`h-full ${item.color} rounded-full transition-all duration-700`} style={{ width: `${Math.min(100, item.pct * 100)}%` }} />

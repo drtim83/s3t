@@ -63,9 +63,9 @@ export function AnalyticsPage() {
 
   if (!activeProject) return (
     <div className="space-y-6 animate-fade-in">
-      <h1 className="text-2xl font-bold text-white">Analytics</h1>
+      <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
       <div className="card p-16 flex items-center justify-center">
-        <p className="text-gray-400 text-sm">Select a project to view analytics.</p>
+        <p className="text-muted-foreground text-sm">Select a project to view analytics.</p>
       </div>
     </div>
   );
@@ -73,17 +73,17 @@ export function AnalyticsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-white">Financial Analytics & Deep Insights</h1>
-        <p className="text-sm text-gray-400 mt-0.5">{activeProject.name}</p>
+        <h1 className="text-2xl font-bold text-foreground">Financial Analytics & Deep Insights</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">{activeProject.name}</p>
       </div>
 
       <div className="card p-4 flex flex-wrap items-center gap-3">
-        <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Filter:</span>
+        <span className="text-xs font-bold text-muted-foreground/80 uppercase tracking-widest">Filter:</span>
         <div className="flex flex-wrap gap-1.5">
           {categories.map(cat => (
             <button key={cat} onClick={() => setFilterCategory(cat)}
               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                filterCategory === cat ? 'bg-brand-600 text-white' : 'bg-surface-700 text-gray-400 hover:bg-surface-600'
+                filterCategory === cat ? 'bg-brand-600 text-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/50'
               }`}>
               {cat}
             </button>
@@ -93,14 +93,14 @@ export function AnalyticsPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <div className="card p-6 space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Yield by Resource</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Yield by Resource</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={barData} margin={{ top: 10, right: 10, left: 0, bottom: 50 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.04)" />
                 <XAxis dataKey="name" angle={-40} textAnchor="end" interval={0} fontSize={9} tick={{ fill: '#6b7280' }} />
                 <YAxis fontSize={9} tick={{ fill: '#6b7280' }} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
-                <Tooltip contentStyle={TOOLTIP} formatter={(v: any) => `RM ${Number(v).toLocaleString()}`} />
+                <Tooltip contentStyle={TOOLTIP} formatter={(v: unknown) => `RM ${Number(v).toLocaleString()}`} />
                 <Bar dataKey="Revenue" fill="#6366f1" radius={[4,4,0,0]} />
                 <Bar dataKey="Cost" fill="#4b5563" radius={[4,4,0,0]} />
                 <Bar dataKey="Margin" fill="#10b981" radius={[4,4,0,0]} />
@@ -110,7 +110,7 @@ export function AnalyticsPage() {
         </div>
 
         <div className="card p-6 space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Year-over-Year View</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Year-over-Year View</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={yoyData}>
@@ -129,27 +129,27 @@ export function AnalyticsPage() {
 
         <div className="glass p-8 flex flex-col justify-center space-y-5">
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-1">Target Category</p>
-            <p className="text-3xl font-black text-white">{filterCategory}</p>
+            <p className="text-xs text-muted-foreground/80 uppercase tracking-widest font-bold mb-1">Target Category</p>
+            <p className="text-3xl font-black text-foreground">{filterCategory}</p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-white/5 rounded-xl p-4 border border-white/5">
-              <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Category Revenue</p>
-              <p className="text-xl font-black text-white">RM {catRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+              <p className="text-[10px] text-muted-foreground/80 uppercase font-bold mb-1">Category Revenue</p>
+              <p className="text-xl font-black text-foreground">RM {catRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
             </div>
             <div className="bg-white/5 rounded-xl p-4 border border-white/5">
-              <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Category Margin</p>
+              <p className="text-[10px] text-muted-foreground/80 uppercase font-bold mb-1">Category Margin</p>
               <p className="text-xl font-black text-emerald-400">{formatPercent(catMarginPct)}</p>
             </div>
           </div>
           <div className="bg-white/5 rounded-xl p-4 border border-white/5">
-            <p className="text-[10px] text-gray-500 uppercase font-bold mb-2">Revenue Share</p>
+            <p className="text-[10px] text-muted-foreground/80 uppercase font-bold mb-2">Revenue Share</p>
             <div className="flex items-center gap-3">
               <div className="flex-1 bg-white/10 h-2 rounded-full overflow-hidden">
                 <div className="h-full bg-brand-500 rounded-full transition-all duration-500"
                   style={{ width: `${totals.revenue > 0 ? Math.round((catRevenue / totals.revenue) * 100) : 0}%` }} />
               </div>
-              <span className="text-sm font-bold text-white tabular-nums">
+              <span className="text-sm font-bold text-foreground tabular-nums">
                 {totals.revenue > 0 ? Math.round((catRevenue / totals.revenue) * 100) : 0}%
               </span>
             </div>
@@ -157,14 +157,14 @@ export function AnalyticsPage() {
         </div>
 
         <div className="card p-6 space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Margin Efficiency Ranking</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Margin Efficiency Ranking</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart layout="vertical" data={[...barData].sort((a, b) => b.marginPct - a.marginPct)} margin={{ left: 60, right: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.04)" />
                 <XAxis type="number" unit="%" fontSize={9} domain={[0, 100]} tick={{ fill: '#6b7280' }} />
                 <YAxis type="category" dataKey="name" fontSize={9} width={60} tick={{ fill: '#9ca3af' }} />
-                <Tooltip contentStyle={TOOLTIP} formatter={(v: any) => `${Number(v)}%`} />
+                <Tooltip contentStyle={TOOLTIP} formatter={(v: unknown) => `${Number(v)}%`} />
                 <Bar dataKey="marginPct" name="Margin %" fill="#10b981" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>

@@ -48,7 +48,7 @@ export function useCreateWBSElement() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Partial<WBSElement>) => {
-      const { data, error } = await supabase.from('wbs_elements').insert(payload as any).select().single();
+      const { data, error } = await supabase.from('wbs_elements').insert(payload).select().single();
       if (error) throw error;
       return data as WBSElement;
     },

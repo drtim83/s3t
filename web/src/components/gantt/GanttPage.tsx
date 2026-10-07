@@ -14,9 +14,9 @@ export function GanttPage() {
   if (!activeProject) {
     return (
       <div className="space-y-6 animate-fade-in">
-        <h1 className="text-2xl font-bold text-white">Gantt Chart</h1>
+        <h1 className="text-2xl font-bold text-foreground">Gantt Chart</h1>
         <div className="card p-16 flex items-center justify-center">
-          <p className="text-gray-400 text-sm">Select a project to view the Gantt chart.</p>
+          <p className="text-muted-foreground text-sm">Select a project to view the Gantt chart.</p>
         </div>
       </div>
     );
@@ -26,12 +26,12 @@ export function GanttPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Gantt Chart & Timeline</h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <h1 className="text-2xl font-bold text-foreground">Gantt Chart & Timeline</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
             {activeProject.name} · {withDates.length} of {flat.length} elements have dates
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-gray-500">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground/80">
           <CalendarDays className="w-4 h-4" />
           {activeProject.start_date && (
             <span>{new Date(activeProject.start_date).toLocaleDateString()} → {activeProject.end_date ? new Date(activeProject.end_date).toLocaleDateString() : 'Open-ended'}</span>

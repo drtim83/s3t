@@ -20,6 +20,13 @@ const borders: Record<ToastType, string> = {
 export function ToastContainer() {
   const { toasts, removeToast } = useNotifStore();
 
+  React.useEffect(() => {
+    if (toasts.length === 0) return;
+    const latest = toasts[toasts.length - 1];
+    const timer = setTimeout(() => removeToast(latest.id), 5000);
+    return () => clearTimeout(timer);
+  }, [toasts, removeToast]);
+
   return (
     <div className="fixed bottom-6 right-6 z-[999] flex flex-col gap-3 max-w-sm w-full">
       {toasts.map((toast) => (
@@ -32,12 +39,12 @@ export function ToastContainer() {
         >
           <span className="shrink-0 mt-0.5">{icons[toast.type]}</span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white">{toast.title}</p>
-            {toast.message && <p className="text-xs text-gray-400 mt-0.5">{toast.message}</p>}
+            <p className="text-sm font-semibold text-foreground">{toast.title}</p>
+            {toast.message && <p className="text-xs text-muted-foreground mt-0.5">{toast.message}</p>}
           </div>
           <button
             onClick={() => removeToast(toast.id)}
-            className="shrink-0 text-gray-500 hover:text-white transition-colors"
+            className="shrink-0 text-muted-foreground/80 hover:text-foreground transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -45,15 +52,4 @@ export function ToastContainer() {
       ))}
     </div>
   );
-}
-
-// Auto-dismiss after 5s
-export function useAutoDismissToast() {
-  const { toasts, removeToast } = useNotifStore();
-  React.useEffect(() => {
-    if (toasts.length === 0) return;
-    const latest = toasts[toasts.length - 1];
-    const timer = setTimeout(() => removeToast(latest.id), 5000);
-    return () => clearTimeout(timer);
-  }, [toasts, removeToast]);
 }

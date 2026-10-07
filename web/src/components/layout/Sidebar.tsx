@@ -3,13 +3,15 @@ import {
   LayoutDashboard, ListTree, Users, MessageSquare, LogOut,
   ChevronLeft, ChevronRight, Zap, Briefcase, Calculator,
   TrendingUp, LineChart, FileCheck, Globe, Settings2, FileText,
-  CalendarDays, BarChart2, Workflow, HelpCircle,
+  CalendarDays, BarChart2, Workflow, HelpCircle, Sparkles,
+  type LucideIcon,
 } from 'lucide-react';
 import { useUIStore } from '../../store';
 import { useAuth } from '../../hooks/useAuth';
 import { Avatar } from '../ui/Avatar';
 import { cn } from '../../lib/utils';
 import { ProjectSwitcher } from './ProjectSwitcher';
+import { ThemeToggle } from '../ui/ThemeToggle';
 import { OrgSwitcher } from './OrgSwitcher';
 
 const coreNav = [
@@ -26,12 +28,14 @@ const coreNav = [
 ];
 
 const utilNav = [
-  { to: '/wbs',           icon: ListTree,     label: 'WBS Editor' },
-  { to: '/gantt',         icon: CalendarDays, label: 'Gantt Chart' },
-  { to: '/wbs-analytics', icon: BarChart2,    label: 'WBS Analytics' },
-  { to: '/workflow',      icon: Workflow,     label: 'Workflow' },
+  { to: '/users',         icon: Users,         label: 'User Management' },
+  { to: '/wbs',           icon: ListTree,      label: 'WBS Editor' },
+  { to: '/gantt',         icon: CalendarDays,  label: 'Gantt Chart' },
+  { to: '/wbs-analytics', icon: BarChart2,     label: 'WBS Analytics' },
+  { to: '/workflow',      icon: Workflow,      label: 'Workflow' },
+  { to: '/ai-parser',     icon: Sparkles,      label: 'AI SOW Parser' },
   { to: '/discussions',   icon: MessageSquare, label: 'Discussions' },
-  { to: '/help',          icon: HelpCircle,  label: 'Help & Guide' },
+  { to: '/help',          icon: HelpCircle,    label: 'Help & Guide' },
 ];
 
 export function Sidebar() {
@@ -44,7 +48,7 @@ export function Sidebar() {
     navigate('/auth/login');
   }
 
-  const NavItem = ({ to, icon: Icon, label }: { to: string; icon: any; label: string }) => (
+  const NavItem = ({ to, icon: Icon, label }: { to: string; icon: LucideIcon; label: string }) => (
     <NavLink
       to={to}
       className={({ isActive }) =>
@@ -60,19 +64,19 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'relative flex flex-col h-screen bg-surface-800 border-r border-surface-600 transition-all duration-300 shrink-0',
+        'relative flex flex-col h-screen bg-card border-r border-border transition-all duration-300 shrink-0',
         sidebarOpen ? 'w-56' : 'w-14'
       )}
     >
       {/* Logo */}
-      <div className={cn('flex items-center gap-3 px-4 py-4 border-b border-surface-600', !sidebarOpen && 'justify-center px-0')}>
-        <div className="w-8 h-8 rounded-xl bg-gradient-brand flex items-center justify-center shadow-glow-brand shrink-0">
-          <Zap className="w-4 h-4 text-white" />
+      <div className={cn('flex items-center gap-3 px-4 py-4 border-b border-border', !sidebarOpen && 'justify-center px-0')}>
+        <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-sm shrink-0">
+          <Zap className="w-4 h-4 text-foreground" />
         </div>
         {sidebarOpen && (
           <div className="animate-fade-in min-w-0">
-            <p className="text-white font-bold text-sm leading-tight truncate">S3T</p>
-            <p className="text-gray-500 text-[10px] truncate leading-tight">Solution Sizing & Scoping</p>
+            <p className="text-foreground font-bold text-sm leading-tight truncate">S3T</p>
+            <p className="text-muted-foreground/80 text-[10px] truncate leading-tight">Solution Sizing & Scoping</p>
           </div>
         )}
       </div>
@@ -85,28 +89,29 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-3 flex flex-col gap-0.5 overflow-y-auto">
-        {/* Core E3T tools */}
+        {/* Core S3T tools */}
         {coreNav.map(item => <NavItem key={item.to} {...item} />)}
 
         {/* Divider */}
-        <div className={cn('my-2 border-t border-surface-600', !sidebarOpen && 'mx-2')} />
+        <div className={cn('my-2 border-t border-border', !sidebarOpen && 'mx-2')} />
 
         {/* Utility tools */}
         {utilNav.map(item => <NavItem key={item.to} {...item} />)}
       </nav>
 
       {/* User */}
-      <div className={cn('px-2 py-3 border-t border-surface-600', !sidebarOpen && 'px-1')}>
+      <div className={cn('px-2 py-3 border-t border-border flex flex-col gap-2', !sidebarOpen && 'px-1')}>
+        <ThemeToggle collapsed={!sidebarOpen} />
         <div className={cn('flex items-center gap-2.5', !sidebarOpen && 'justify-center')}>
           <Avatar name={user?.full_name} src={user?.avatar_url} size="sm" className="shrink-0" />
           {sidebarOpen && (
             <div className="flex-1 min-w-0 animate-fade-in">
-              <p className="text-xs font-semibold text-white truncate">{user?.full_name ?? 'User'}</p>
-              <p className="text-[10px] text-gray-500 truncate">{user?.job_title ?? 'Member'}</p>
+              <p className="text-xs font-semibold text-foreground truncate">{user?.full_name ?? 'User'}</p>
+              <p className="text-[10px] text-muted-foreground/80 truncate">{user?.job_title ?? 'Member'}</p>
             </div>
           )}
           {sidebarOpen && (
-            <button onClick={handleSignOut} className="text-gray-500 hover:text-red-400 transition-colors" title="Sign out">
+            <button onClick={handleSignOut} className="text-muted-foreground/80 hover:text-red-400 transition-colors" title="Sign out">
               <LogOut className="w-3.5 h-3.5" />
             </button>
           )}
@@ -125,7 +130,7 @@ export function Sidebar() {
       {/* Collapse toggle */}
       <button
         onClick={toggleSidebar}
-        className="absolute -right-3 top-16 w-6 h-6 rounded-full bg-surface-600 border border-surface-500 flex items-center justify-center text-gray-400 hover:text-white hover:bg-brand-600 transition-all duration-200 z-10"
+        className="absolute -right-3 top-16 w-6 h-6 rounded-full bg-secondary/50 border border-input flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-brand-600 transition-all duration-200 z-10"
       >
         {sidebarOpen ? <ChevronLeft className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
       </button>

@@ -1,10 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 import { Globe, RotateCcw } from 'lucide-react';
 import { useUIStore } from '../../store';
 import { useEngagementStore } from '../../store/engagementStore';
-import { formatCurrency } from '../../lib/calculations';
-import { calcResource, calcTotals } from '../../lib/calculations';
-import { useMemo } from 'react';
+import { formatCurrency, calcResource, calcTotals } from '../../lib/calculations';
 
 export function ForexPage() {
   const { activeProject } = useUIStore();
@@ -25,7 +23,7 @@ export function ForexPage() {
   );
   const totals = useMemo(() => calcTotals(calcResources, expenses), [calcResources, expenses]);
 
-  const fetchRates = async () => {
+  const fetchRates = useCallback(async () => {
     setForexLoading(true);
     try {
       const res = await fetch('https://open.er-api.com/v6/latest/MYR');
@@ -41,16 +39,18 @@ export function ForexPage() {
     } finally {
       setForexLoading(false);
     }
-  };
+  }, [forex, setForex, setForexLoading]);
 
-  useEffect(() => { fetchRates(); }, []);
+  useEffect(() => {
+    fetchRates();
+  }, [fetchRates]);
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Currency & Forex Exchange</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Live rates · MYR base · open.er-api.com</p>
+          <h1 className="text-2xl font-bold text-foreground">Currency & Forex Exchange</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Live rates · MYR base · open.er-api.com</p>
         </div>
         <div className="flex items-center gap-3">
           {isForexLoading ? (
@@ -66,11 +66,11 @@ export function ForexPage() {
             <RotateCcw className="w-3.5 h-3.5" /> Refresh
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400">Secondary:</span>
+            <span className="text-xs text-muted-foreground">Secondary:</span>
             <select
               value={secondaryCurrency}
               onChange={e => setSecondaryCurrency(e.target.value)}
-              className="bg-surface-700 border border-surface-500 rounded-lg px-3 py-1.5 text-sm text-white outline-none focus:border-brand-500"
+              className="bg-secondary border border-input rounded-lg px-3 py-1.5 text-sm text-foreground outline-none focus:border-brand-500"
             >
               {forex.filter(f => f.code !== 'MYR').map(f => (
                 <option key={f.code} value={f.code}>{f.code}</option>
@@ -100,12 +100,12 @@ export function ForexPage() {
                       <span className="font-mono font-bold text-brand-400">{fx.code}</span>
                       {fx.is_auto && <span className="ml-1.5 w-1.5 h-1.5 bg-emerald-500 rounded-full inline-block" title="Auto-fetched" />}
                     </td>
-                    <td className="text-gray-400">{fx.name}</td>
+                    <td className="text-muted-foreground">{fx.name}</td>
                     <td className="text-right">
                       <input
                         type="number"
                         step="0.0001"
-                        className="bg-surface-700 border border-surface-600 rounded px-2 py-1 text-xs text-right text-white outline-none focus:border-brand-500 w-28 tabular-nums"
+                        className="bg-secondary border border-border rounded px-2 py-1 text-xs text-right text-foreground outline-none focus:border-brand-500 w-28 tabular-nums"
                         value={fx.rate}
                         onChange={e => {
                           const next = [...forex];
@@ -132,13 +132,13 @@ export function ForexPage() {
           <div className="relative z-10 space-y-6">
             <div className="flex items-center gap-3">
               <Globe className="w-6 h-6 text-emerald-400" />
-              <h3 className="text-lg font-bold text-white">Total Project Value</h3>
+              <h3 className="text-lg font-bold text-foreground">Total Project Value</h3>
             </div>
             <div className="space-y-4">
               {forex.filter(f => f.code !== 'MYR').map(fx => (
                 <div key={fx.code} className="flex justify-between items-end border-b border-white/8 pb-4">
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">In {fx.name}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground/80 mb-1">In {fx.name}</p>
                     <p className="text-2xl font-black text-emerald-400 tabular-nums">
                       {fx.code} {formatCurrency(totals.revenue * fx.rate, fx.code)}
                     </p>

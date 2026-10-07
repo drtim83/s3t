@@ -1,5 +1,5 @@
 -- ============================================================
--- E3T Platform — Full Database Migration
+-- S3T Platform — Full Database Migration
 -- Project: ucisjikwuulslqgbnwac
 -- Run this in: Supabase Dashboard → SQL Editor → New Query
 -- ============================================================

@@ -1,5 +1,7 @@
-// Auto-generated from Phase 1 schema. Update after running `supabase gen types`.
-// Placeholder until Supabase project is provisioned.
+// Hand-maintained to mirror supabase/migrations. Replace with the output of
+// `supabase gen types typescript` once the CLI is linked to the project.
+// NOTE: rows are `type` aliases (not interfaces) so they satisfy supabase-js's
+// `Record<string, unknown>` constraint.
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -11,7 +13,7 @@ export type MilestoneStatus = 'upcoming' | 'reached' | 'missed';
 export type AIJobStatus = 'pending' | 'processing' | 'completed' | 'failed';
 export type DependencyType = 'FS' | 'SS' | 'FF' | 'SF';
 
-export interface Organization {
+export type Organization = {
   id: string;
   name: string;
   slug: string;
@@ -20,7 +22,7 @@ export interface Organization {
   updated_at: string;
 }
 
-export interface Profile {
+export type Profile = {
   id: string;
   org_id: string | null;
   full_name: string | null;
@@ -30,7 +32,7 @@ export interface Profile {
   updated_at: string;
 }
 
-export interface Project {
+export type Project = {
   id: string;
   org_id: string;
   name: string;
@@ -42,9 +44,13 @@ export interface Project {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  // added in 003_presales_features.sql
+  is_template: boolean | null;
+  is_shared: boolean | null;
+  share_token: string | null;
 }
 
-export interface ProjectMember {
+export type ProjectMember = {
   id: string;
   project_id: string;
   user_id: string;
@@ -53,7 +59,7 @@ export interface ProjectMember {
   profiles?: Pick<Profile, 'id' | 'full_name' | 'avatar_url' | 'job_title'>;
 }
 
-export interface WBSElement {
+export type WBSElement = {
   id: string;
   project_id: string;
   parent_id: string | null;
@@ -77,7 +83,7 @@ export interface WBSElement {
   children?: WBSElement[];
 }
 
-export interface WBSDependency {
+export type WBSDependency = {
   id: string;
   predecessor_id: string;
   successor_id: string;
@@ -85,7 +91,7 @@ export interface WBSDependency {
   lag_days: number;
 }
 
-export interface ScopeDocument {
+export type ScopeDocument = {
   id: string;
   project_id: string;
   title: string;
@@ -99,7 +105,7 @@ export interface ScopeDocument {
   updated_at: string;
 }
 
-export interface Discussion {
+export type Discussion = {
   id: string;
   wbs_element_id: string;
   parent_comment_id: string | null;
@@ -112,7 +118,7 @@ export interface Discussion {
   replies?: Discussion[];
 }
 
-export interface Resource {
+export type Resource = {
   id: string;
   project_id: string;
   wbs_element_id: string;
@@ -124,7 +130,7 @@ export interface Resource {
   wbs_element?: Pick<WBSElement, 'id' | 'name' | 'wbs_code'>;
 }
 
-export interface Milestone {
+export type Milestone = {
   id: string;
   project_id: string;
   name: string;
@@ -134,7 +140,7 @@ export interface Milestone {
   created_at: string;
 }
 
-export interface Webhook {
+export type Webhook = {
   id: string;
   project_id: string;
   name: string;
@@ -146,7 +152,7 @@ export interface Webhook {
   created_at: string;
 }
 
-export interface AIJob {
+export type AIJob = {
   id: string;
   project_id: string;
   scope_doc_id: string | null;
@@ -161,7 +167,7 @@ export interface AIJob {
   completed_at: string | null;
 }
 
-export interface AuditEntry {
+export type AuditEntry = {
   id: string;
   actor_id: string | null;
   action: string;
@@ -172,23 +178,52 @@ export interface AuditEntry {
   created_at: string;
 }
 
-// Stub for Supabase client typing
-export interface Database {
+// Shape returned by the get_shared_project() RPC (public client share link)
+export type SharedWBSElement = Pick<
+  WBSElement,
+  'id' | 'parent_id' | 'wbs_code' | 'level' | 'name' | 'description' | 'status' | 'phase' | 'effort_hours' | 'start_date' | 'end_date' | 'sort_order'
+>;
+export type SharedProject = Pick<Project, 'id' | 'name' | 'description' | 'start_date' | 'end_date' | 'status'> & {
+  wbs: SharedWBSElement[];
+};
+
+type TableDef<Row> = {
+  Row: Row;
+  Insert: Partial<Row>;
+  Update: Partial<Row>;
+  Relationships: [];
+};
+
+// Supabase client typing — must match supabase-js GenericSchema shape
+export type Database = {
   public: {
     Tables: {
-      organizations:         { Row: Organization; Insert: Partial<Organization>; Update: Partial<Organization> };
-      profiles:              { Row: Profile; Insert: Partial<Profile>; Update: Partial<Profile> };
-      projects:              { Row: Project; Insert: Partial<Project>; Update: Partial<Project> };
-      project_members:       { Row: ProjectMember; Insert: Partial<ProjectMember>; Update: Partial<ProjectMember> };
-      wbs_elements:          { Row: WBSElement; Insert: Partial<WBSElement>; Update: Partial<WBSElement> };
-      wbs_dependencies:      { Row: WBSDependency; Insert: Partial<WBSDependency>; Update: Partial<WBSDependency> };
-      scope_documents:       { Row: ScopeDocument; Insert: Partial<ScopeDocument>; Update: Partial<ScopeDocument> };
-      discussions:           { Row: Discussion; Insert: Partial<Discussion>; Update: Partial<Discussion> };
-      resources:             { Row: Resource; Insert: Partial<Resource>; Update: Partial<Resource> };
-      milestones:            { Row: Milestone; Insert: Partial<Milestone>; Update: Partial<Milestone> };
-      webhooks:              { Row: Webhook; Insert: Partial<Webhook>; Update: Partial<Webhook> };
-      ai_jobs:               { Row: AIJob; Insert: Partial<AIJob>; Update: Partial<AIJob> };
-      audit_log:             { Row: AuditEntry; Insert: Partial<AuditEntry>; Update: Partial<AuditEntry> };
+      organizations:    TableDef<Organization>;
+      profiles:         TableDef<Profile>;
+      projects:         TableDef<Project>;
+      project_members:  TableDef<ProjectMember>;
+      wbs_elements:     TableDef<WBSElement>;
+      wbs_dependencies: TableDef<WBSDependency>;
+      scope_documents:  TableDef<ScopeDocument>;
+      discussions:      TableDef<Discussion>;
+      resources:        TableDef<Resource>;
+      milestones:       TableDef<Milestone>;
+      webhooks:         TableDef<Webhook>;
+      ai_jobs:          TableDef<AIJob>;
+      audit_log:        TableDef<AuditEntry>;
     };
+    Views: { [_ in never]: never };
+    Functions: {
+      clone_project: {
+        Args: { source_id: string; new_name: string; p_is_template: boolean };
+        Returns: string;
+      };
+      get_shared_project: {
+        Args: { p_token: string };
+        Returns: Json;
+      };
+    };
+    Enums: { [_ in never]: never };
+    CompositeTypes: { [_ in never]: never };
   };
-}
+};

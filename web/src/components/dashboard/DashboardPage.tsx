@@ -3,6 +3,7 @@ import {
   Users, FolderKanban, Milestone, DollarSign, Percent, Zap,
 } from 'lucide-react';
 import { useUIStore } from '../../store';
+import { useMyProjects } from '../../hooks/useProjects';
 import { useWBSElements } from '../../hooks/useWBS';
 import { useEngagementStore } from '../../store/engagementStore';
 import { Skeleton } from '../ui/Spinner';
@@ -30,9 +31,9 @@ function StatCard({ icon, label, value, sub, color = 'brand', onClick }: {
     >
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${colors[color]}`}>{icon}</div>
       <div className="min-w-0">
-        <p className="text-xs text-gray-400 uppercase tracking-wider font-bold">{label}</p>
-        <p className="text-2xl font-black text-white mt-0.5 tracking-tight">{value}</p>
-        {sub && <p className="text-xs text-gray-500 mt-0.5">{sub}</p>}
+        <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">{label}</p>
+        <p className="text-2xl font-black text-foreground mt-0.5 tracking-tight">{value}</p>
+        {sub && <p className="text-xs text-muted-foreground/80 mt-0.5">{sub}</p>}
       </div>
     </div>
   );
@@ -70,16 +71,50 @@ export function DashboardPage() {
   const s3tTotals = useMemo(() => calcTotals(calcResources, expenses), [calcResources, expenses]);
   const marginPct = s3tTotals.revenue > 0 ? s3tTotals.margin / s3tTotals.revenue : 0;
 
+  const { data: allProjects = [] } = useMyProjects();
+  const templates = allProjects.filter(p => p.is_template);
+
   if (!activeProject) {
     return (
-      <div className="flex flex-col items-center justify-center h-80 gap-4 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-surface-700 flex items-center justify-center">
-          <FolderKanban className="w-8 h-8 text-gray-500" />
-        </div>
+      <div className="space-y-6 animate-fade-in">
         <div>
-          <p className="text-white font-semibold">No project selected</p>
-          <p className="text-gray-500 text-sm mt-1">Select a project from the sidebar to view its dashboard</p>
+          <h1 className="text-2xl font-bold text-foreground">Welcome to S3T</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Select a project or start from a template.</p>
         </div>
+
+        {templates.length > 0 && (
+          <div>
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 mb-4">Your Templates</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {templates.map(t => (
+                <div key={t.id} className="card p-5 space-y-3 cursor-pointer hover:border-brand-500/30 transition-colors" onClick={() => useUIStore.getState().setActiveProject(t)}>
+                  <div className="flex justify-between items-start">
+                    <div className="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center shrink-0">
+                      <FolderKanban className="w-4 h-4 text-brand-400" />
+                    </div>
+                    <span className="badge badge-gray text-[10px]">Template</span>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-foreground">{t.name.replace(' (Template)', '')}</h4>
+                    <p className="text-xs text-muted-foreground/80 line-clamp-2 mt-1">{t.description || 'No description provided.'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {templates.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center">
+              <FolderKanban className="w-8 h-8 text-muted-foreground/80" />
+            </div>
+            <div>
+              <p className="text-foreground font-semibold">No project selected</p>
+              <p className="text-muted-foreground/80 text-sm mt-1">Select a project from the sidebar to view its dashboard</p>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -89,8 +124,8 @@ export function DashboardPage() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">{activeProject.name}</h1>
-          <p className="text-gray-400 mt-1 text-sm">
+          <h1 className="text-2xl font-bold text-foreground">{activeProject.name}</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             {activeProject.description ?? 'No description'} ·{' '}
             {activeProject.start_date ? `${formatDate(activeProject.start_date)} → ${formatDate(activeProject.end_date)}` : 'No dates set'}
           </p>
@@ -134,25 +169,25 @@ export function DashboardPage() {
         <div className="card p-6 space-y-4">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-brand-400" />
-            <h3 className="font-semibold text-white">Overall Completion</h3>
+            <h3 className="font-semibold text-foreground">Overall Completion</h3>
           </div>
           <div>
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-400">{formatHours(completedHours)} completed</span>
-              <span className="text-white font-semibold">{completionPct}%</span>
+              <span className="text-muted-foreground">{formatHours(completedHours)} completed</span>
+              <span className="text-foreground font-semibold">{completionPct}%</span>
             </div>
-            <div className="h-3 bg-surface-600 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-brand rounded-full transition-all duration-700" style={{ width: `${completionPct}%` }} />
+            <div className="h-3 bg-secondary/50 rounded-full overflow-hidden">
+              <div className="h-full bg-primary rounded-full transition-all duration-700" style={{ width: `${completionPct}%` }} />
             </div>
-            <p className="text-xs text-gray-500 mt-2">{formatHours(totalHours - completedHours)} remaining</p>
+            <p className="text-xs text-muted-foreground/80 mt-2">{formatHours(totalHours - completedHours)} remaining</p>
           </div>
           {s3tTotals.revenue > 0 && (
-            <div className="pt-3 border-t border-surface-600">
+            <div className="pt-3 border-t border-border">
               <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-400">Margin health</span>
+                <span className="text-muted-foreground">Margin health</span>
                 <span className={`font-semibold ${marginPct >= 0.3 ? 'text-emerald-400' : 'text-amber-400'}`}>{formatPercent(marginPct)}</span>
               </div>
-              <div className="h-2 bg-surface-600 rounded-full overflow-hidden">
+              <div className="h-2 bg-secondary/50 rounded-full overflow-hidden">
                 <div className={`h-full rounded-full transition-all duration-700 ${marginPct >= 0.3 ? 'bg-emerald-500' : 'bg-amber-500'}`} style={{ width: `${Math.min(100, marginPct * 100)}%` }} />
               </div>
             </div>
@@ -163,7 +198,7 @@ export function DashboardPage() {
         <div className="card p-6 space-y-4">
           <div className="flex items-center gap-2">
             <Milestone className="w-5 h-5 text-cyan-400" />
-            <h3 className="font-semibold text-white">Status Breakdown</h3>
+            <h3 className="font-semibold text-foreground">Status Breakdown</h3>
           </div>
           <div className="space-y-2.5">
             {([
@@ -176,11 +211,11 @@ export function DashboardPage() {
               const pct = flat.length > 0 ? Math.round((count / flat.length) * 100) : 0;
               return (
                 <div key={s} className="flex items-center gap-3">
-                  <span className="text-xs text-gray-400 w-24 shrink-0">{label}</span>
-                  <div className="flex-1 h-2 bg-surface-600 rounded-full overflow-hidden">
+                  <span className="text-xs text-muted-foreground w-24 shrink-0">{label}</span>
+                  <div className="flex-1 h-2 bg-secondary/50 rounded-full overflow-hidden">
                     <div className={`h-full ${color} rounded-full transition-all duration-500`} style={{ width: `${pct}%` }} />
                   </div>
-                  <span className="text-xs text-gray-300 w-6 text-right">{count}</span>
+                  <span className="text-xs text-foreground/80 w-6 text-right">{count}</span>
                 </div>
               );
             })}
@@ -193,7 +228,7 @@ export function DashboardPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users className="w-5 h-5 text-amber-400" />
-            <h3 className="font-semibold text-white">Recent Activity</h3>
+            <h3 className="font-semibold text-foreground">Recent Activity</h3>
           </div>
           <button onClick={() => navigate('/wbs')} className="text-xs text-brand-400 hover:text-brand-300 font-semibold">
             View all →
@@ -202,7 +237,7 @@ export function DashboardPage() {
         {isLoading ? (
           <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-10" />)}</div>
         ) : flat.length === 0 ? (
-          <p className="text-gray-500 text-sm">No WBS elements yet. Go to the WBS Editor to add some.</p>
+          <p className="text-muted-foreground/80 text-sm">No WBS elements yet. Go to the WBS Editor to add some.</p>
         ) : (
           <div className="table-container">
             <table className="table">
@@ -213,7 +248,7 @@ export function DashboardPage() {
                 {flat.slice(0, 8).map(el => (
                   <tr key={el.id}>
                     <td><code className="text-brand-400 text-xs">{el.wbs_code}</code></td>
-                    <td className="text-white font-medium">{el.name}</td>
+                    <td className="text-foreground font-medium">{el.name}</td>
                     <td><span className={`badge text-xs ${el.status === 'completed' ? 'badge-green' : el.status === 'blocked' ? 'badge-red' : el.status === 'in_progress' ? 'badge-brand' : 'badge-gray'}`}>{el.status.replace('_', ' ')}</span></td>
                     <td>{formatHours(el.effort_hours)}</td>
                     <td>{formatDate(el.end_date)}</td>

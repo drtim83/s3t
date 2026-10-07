@@ -18,7 +18,7 @@ export function ProcurementPage() {
 
   const addExpense = () => {
     setExpenses(pid, [...expenses, {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       description: 'New Item',
       category: 'Software',
       cost: 0,
@@ -68,9 +68,9 @@ export function ProcurementPage() {
   if (!activeProject) {
     return (
       <div className="space-y-6 animate-fade-in">
-        <h1 className="text-2xl font-bold text-white">Procurement</h1>
+        <h1 className="text-2xl font-bold text-foreground">Procurement</h1>
         <div className="card p-16 flex items-center justify-center">
-          <p className="text-gray-400 text-sm">Select a project first.</p>
+          <p className="text-muted-foreground text-sm">Select a project first.</p>
         </div>
       </div>
     );
@@ -79,15 +79,15 @@ export function ProcurementPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-white">Procurement, Expenses & Audit Trail</h1>
-        <p className="text-sm text-gray-400 mt-0.5">{activeProject.name} · Non-resource costs & documents</p>
+        <h1 className="text-2xl font-bold text-foreground">Procurement, Expenses & Audit Trail</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">{activeProject.name} · Non-resource costs & documents</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Expenses Table */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-gray-300 flex items-center gap-2">
+            <h3 className="text-sm font-bold text-foreground/80 flex items-center gap-2">
               <Plus className="w-4 h-4 text-brand-400" /> Non-Resource Expenses
             </h3>
             <button onClick={addExpense} className="btn-primary btn-sm">Add Item</button>
@@ -110,16 +110,16 @@ export function ProcurementPage() {
                     <tr key={exp.id}>
                       <td>
                         <input
-                          className="bg-transparent outline-none text-white w-full placeholder-gray-600 text-sm"
+                          className="bg-transparent outline-none text-foreground w-full placeholder-gray-600 text-sm"
                           value={exp.description}
                           onChange={e => updateExpense(exp.id!, { description: e.target.value })}
                         />
                       </td>
                       <td>
                         <select
-                          className="bg-surface-700 border border-surface-500 rounded px-2 py-0.5 text-xs text-gray-300 outline-none"
+                          className="bg-secondary border border-input rounded px-2 py-0.5 text-xs text-foreground/80 outline-none"
                           value={exp.category}
-                          onChange={e => updateExpense(exp.id!, { category: e.target.value as any })}
+                          onChange={e => updateExpense(exp.id!, { category: e.target.value as ExpenseItem['category'] })}
                         >
                           {EXPENSE_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
@@ -127,7 +127,7 @@ export function ProcurementPage() {
                       <td className="text-right">
                         <input
                           type="number"
-                          className="bg-transparent text-right outline-none text-gray-300 tabular-nums w-28 text-sm"
+                          className="bg-transparent text-right outline-none text-foreground/80 tabular-nums w-28 text-sm"
                           value={exp.cost}
                           onChange={e => updateExpense(exp.id!, { cost: parseFloat(e.target.value) || 0 })}
                         />
@@ -157,9 +157,9 @@ export function ProcurementPage() {
                 </tbody>
                 {expenses.length > 0 && (
                   <tfoot>
-                    <tr className="bg-surface-700 font-bold border-t border-surface-500">
-                      <td colSpan={2} className="px-4 py-2.5 text-xs text-gray-500 uppercase tracking-widest">Totals</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums text-gray-300">{formatCurrency(totalCost)}</td>
+                    <tr className="bg-secondary font-bold border-t border-input">
+                      <td colSpan={2} className="px-4 py-2.5 text-xs text-muted-foreground/80 uppercase tracking-widest">Totals</td>
+                      <td className="px-4 py-2.5 text-right tabular-nums text-foreground/80">{formatCurrency(totalCost)}</td>
                       <td className="px-4 py-2.5 text-right tabular-nums text-brand-300 font-black">{formatCurrency(totalSell)}</td>
                       <td></td>
                     </tr>
@@ -179,7 +179,7 @@ export function ProcurementPage() {
         {/* Attachments */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-gray-300 flex items-center gap-2">
+            <h3 className="text-sm font-bold text-foreground/80 flex items-center gap-2">
               <Info className="w-4 h-4 text-cyan-400" /> Audit Trail & Estimations
             </h3>
             <label className="btn-primary btn-sm cursor-pointer">
@@ -190,29 +190,29 @@ export function ProcurementPage() {
 
           <div className="card p-4 space-y-3 min-h-[200px]">
             {attachments.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 gap-3 border-2 border-dashed border-surface-600 rounded-xl">
+              <div className="flex flex-col items-center justify-center py-12 gap-3 border-2 border-dashed border-border rounded-xl">
                 <FileText className="w-8 h-8 text-gray-600" />
-                <p className="text-sm text-gray-500 text-center">No documents attached.<br/>Upload cloud estimates or quotations.</p>
+                <p className="text-sm text-muted-foreground/80 text-center">No documents attached.<br/>Upload cloud estimates or quotations.</p>
               </div>
             ) : (
               attachments.map(att => (
-                <div key={att.id} className="flex items-center justify-between bg-surface-700 hover:bg-surface-650 rounded-xl p-3 border border-surface-600 transition-all group">
+                <div key={att.id} className="flex items-center justify-between bg-secondary hover:bg-surface-650 rounded-xl p-3 border border-border transition-all group">
                   <div className="flex items-center gap-3 overflow-hidden">
                     <div className="bg-brand-500/20 p-2 rounded-lg text-brand-400 shrink-0">
                       <FileText className="w-4 h-4" />
                     </div>
                     <div className="overflow-hidden">
-                      <p className="text-sm font-semibold text-white truncate max-w-[180px]">{att.name}</p>
-                      <p className="text-[10px] text-gray-500">
+                      <p className="text-sm font-semibold text-foreground truncate max-w-[180px]">{att.name}</p>
+                      <p className="text-[10px] text-muted-foreground/80">
                         {(att.size / 1024).toFixed(1)} KB · {new Date(att.uploaded_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <a href={att.data} download={att.name} className="p-1.5 text-gray-500 hover:text-white transition-colors rounded">
+                    <a href={att.data} download={att.name} className="p-1.5 text-muted-foreground/80 hover:text-foreground transition-colors rounded">
                       <Download className="w-3.5 h-3.5" />
                     </a>
-                    <button onClick={() => deleteAttachment(att.id!)} className="p-1.5 text-gray-500 hover:text-red-400 transition-colors rounded">
+                    <button onClick={() => deleteAttachment(att.id!)} className="p-1.5 text-muted-foreground/80 hover:text-red-400 transition-colors rounded">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>

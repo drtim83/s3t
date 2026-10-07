@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Plus, Search, ChevronRight, ChevronDown, Pencil, Trash2, MessageSquare } from 'lucide-react';
+import { Plus, Search, ChevronRight, ChevronDown, Pencil, Trash2, MessageSquare, ListTree, Download } from 'lucide-react';
 import { useUIStore, useToast } from '../../store';
 import { useWBSElements, useCreateWBSElement, useUpdateWBSElement, useDeleteWBSElement } from '../../hooks/useWBS';
+import { exportWBSPDF } from '../../lib/exportPDF';
 import { StatusBadge, StatusSelect } from '../ui/StatusBadge';
 import { Modal } from '../ui/Modal';
 import { Skeleton } from '../ui/Spinner';
@@ -33,7 +34,7 @@ function WBSRow({ element, depth, onEdit, onDelete, onAddChild }: WBSRowProps) {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setExpanded(!expanded)}
-              className={`w-4 h-4 text-gray-500 hover:text-white transition-colors ${!hasChildren && 'opacity-0 pointer-events-none'}`}
+              className={`w-4 h-4 text-muted-foreground/80 hover:text-foreground transition-colors ${!hasChildren && 'opacity-0 pointer-events-none'}`}
             >
               {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </button>
@@ -41,18 +42,18 @@ function WBSRow({ element, depth, onEdit, onDelete, onAddChild }: WBSRowProps) {
           </div>
         </td>
         <td>
-          <span className="text-white font-medium">{element.name}</span>
+          <span className="text-foreground font-medium">{element.name}</span>
           {element.description && (
-            <p className="text-xs text-gray-500 mt-0.5 truncate max-w-xs">{element.description}</p>
+            <p className="text-xs text-muted-foreground/80 mt-0.5 truncate max-w-xs">{element.description}</p>
           )}
         </td>
         <td>
           <StatusSelect value={element.status} onChange={handleStatusChange} className="w-36" />
         </td>
-        <td className="text-gray-300">{element.phase ?? '—'}</td>
-        <td className="text-gray-300">{formatHours(element.effort_hours)}</td>
-        <td className="text-gray-300">{formatDate(element.start_date)}</td>
-        <td className="text-gray-300">{formatDate(element.end_date)}</td>
+        <td className="text-foreground/80">{element.phase ?? '—'}</td>
+        <td className="text-foreground/80">{formatHours(element.effort_hours)}</td>
+        <td className="text-foreground/80">{formatDate(element.start_date)}</td>
+        <td className="text-foreground/80">{formatDate(element.end_date)}</td>
         <td>
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button onClick={() => onAddChild(element.id)} className="btn btn-ghost btn-sm" title="Add child">
@@ -215,9 +216,10 @@ export function WBSEditorPage() {
   }
 
   const tree = data?.tree ?? [];
+  const flat = data?.flat ?? [];
   const searchLower = search.toLowerCase();
   const filteredFlat = search
-    ? (data?.flat ?? []).filter(e =>
+    ? flat.filter(e =>
         e.name.toLowerCase().includes(searchLower) ||
         e.wbs_code.toLowerCase().includes(searchLower)
       )
@@ -226,7 +228,7 @@ export function WBSEditorPage() {
   if (!activeProject) {
     return (
       <div className="flex items-center justify-center h-80">
-        <p className="text-gray-500">Select a project to view its WBS.</p>
+        <p className="text-muted-foreground/80">Select a project to view its WBS.</p>
       </div>
     );
   }
@@ -234,19 +236,34 @@ export function WBSEditorPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">WBS Editor</h1>
-          <p className="text-gray-400 text-sm mt-1">{activeProject.name} · {data?.flat.length ?? 0} elements</p>
+      <div className="flex items-start justify-between">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/20 flex items-center justify-center shrink-0">
+            <ListTree className="w-6 h-6 text-cyan-400" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Work Breakdown Structure</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">{activeProject.name} · {flat.length} elements</p>
+          </div>
         </div>
-        <button onClick={() => openCreate()} className="btn-primary">
-          <Plus className="w-4 h-4" /> Add Element
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => exportWBSPDF(activeProject.name, flat)}
+            className="btn-secondary"
+            disabled={flat.length === 0}
+          >
+            <Download className="w-4 h-4" />
+            Export PDF
+          </button>
+          <button onClick={() => openCreate()} className="btn-primary">
+            <Plus className="w-4 h-4" /> Add Element
+          </button>
+        </div>
       </div>
 
       {/* Search */}
       <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/80" />
         <input
           className="input pl-10"
           placeholder="Search WBS elements…"
@@ -276,16 +293,16 @@ export function WBSEditorPage() {
             <tbody>
               {filteredFlat ? (
                 filteredFlat.length === 0 ? (
-                  <tr><td colSpan={8} className="text-center text-gray-500 py-8">No results for &quot;{search}&quot;</td></tr>
+                  <tr><td colSpan={8} className="text-center text-muted-foreground/80 py-8">No results for &quot;{search}&quot;</td></tr>
                 ) : filteredFlat.map(el => (
                   <tr key={el.id} className="group">
                     <td><code className="text-brand-400 text-xs font-mono">{el.wbs_code}</code></td>
-                    <td className="text-white">{el.name}</td>
+                    <td className="text-foreground">{el.name}</td>
                     <td><StatusBadge status={el.status} /></td>
-                    <td className="text-gray-300">{el.phase ?? '—'}</td>
-                    <td className="text-gray-300">{formatHours(el.effort_hours)}</td>
-                    <td className="text-gray-300">{formatDate(el.start_date)}</td>
-                    <td className="text-gray-300">{formatDate(el.end_date)}</td>
+                    <td className="text-foreground/80">{el.phase ?? '—'}</td>
+                    <td className="text-foreground/80">{formatHours(el.effort_hours)}</td>
+                    <td className="text-foreground/80">{formatDate(el.start_date)}</td>
+                    <td className="text-foreground/80">{formatDate(el.end_date)}</td>
                     <td>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => openEdit(el)} className="btn btn-ghost btn-sm"><Pencil className="w-3 h-3" /></button>
@@ -298,7 +315,7 @@ export function WBSEditorPage() {
                 tree.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="py-12 text-center">
-                      <div className="flex flex-col items-center gap-3 text-gray-500">
+                      <div className="flex flex-col items-center gap-3 text-muted-foreground/80">
                         <p className="font-medium">No WBS elements yet</p>
                         <button onClick={() => openCreate()} className="btn-primary btn-sm">
                           <Plus className="w-3 h-3" /> Add first element

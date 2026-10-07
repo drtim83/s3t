@@ -1,5 +1,18 @@
 node_modules/
 dist/
 .env
+.env.*
+!.env.example
+*.legacy-backup
 .DS_Store
 *.log
+
+# Local deployment & tooling state
+.netlify/
+web/.netlify/
+web/seed_users.js
+.agent/
+.autoclaw/
+.clinerules/
+
+

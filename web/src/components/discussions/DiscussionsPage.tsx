@@ -47,29 +47,29 @@ function Comment({ comment, wbsElementId, depth = 0 }: CommentProps) {
   const hasReplies = (comment.replies?.length ?? 0) > 0;
 
   return (
-    <div className={`${depth > 0 ? 'ml-10 border-l-2 border-surface-600 pl-4' : ''}`}>
+    <div className={`${depth > 0 ? 'ml-10 border-l-2 border-border pl-4' : ''}`}>
       <div className="flex gap-3 py-3 group">
         <Avatar name={comment.author?.full_name} src={comment.author?.avatar_url} size="sm" className="shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-semibold text-white">{comment.author?.full_name ?? 'Unknown'}</span>
-            <span className="text-xs text-gray-500">{formatRelative(comment.created_at)}</span>
+            <span className="text-sm font-semibold text-foreground">{comment.author?.full_name ?? 'Unknown'}</span>
+            <span className="text-xs text-muted-foreground/80">{formatRelative(comment.created_at)}</span>
             {comment.is_edited && <span className="text-xs text-gray-600">(edited)</span>}
           </div>
-          <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{comment.body}</p>
+          <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">{comment.body}</p>
           <div className="flex items-center gap-3 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
             {depth === 0 && (
-              <button onClick={() => setShowReply(!showReply)} className="flex items-center gap-1 text-xs text-gray-500 hover:text-brand-400 transition-colors">
+              <button onClick={() => setShowReply(!showReply)} className="flex items-center gap-1 text-xs text-muted-foreground/80 hover:text-brand-400 transition-colors">
                 <Reply className="w-3 h-3" /> Reply
               </button>
             )}
             {isOwner && (
-              <button onClick={handleDelete} className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-400 transition-colors">
+              <button onClick={handleDelete} className="flex items-center gap-1 text-xs text-muted-foreground/80 hover:text-red-400 transition-colors">
                 <Trash2 className="w-3 h-3" /> Delete
               </button>
             )}
             {hasReplies && (
-              <button onClick={() => setShowReplies(!showReplies)} className="flex items-center gap-1 text-xs text-gray-500 hover:text-white transition-colors">
+              <button onClick={() => setShowReplies(!showReplies)} className="flex items-center gap-1 text-xs text-muted-foreground/80 hover:text-foreground transition-colors">
                 {showReplies ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
                 {comment.replies!.length} {comment.replies!.length === 1 ? 'reply' : 'replies'}
               </button>
@@ -122,14 +122,14 @@ function DiscussionPanel({ wbsElement }: DiscussionPanelProps) {
     <div className="card p-6 space-y-4">
       <div className="flex items-center gap-2">
         <MessageSquare className="w-5 h-5 text-brand-400" />
-        <h3 className="font-semibold text-white">Discussion</h3>
+        <h3 className="font-semibold text-foreground">Discussion</h3>
         <span className="badge-gray text-xs">{wbsElement.wbs_code} — {wbsElement.name}</span>
       </div>
 
       {isLoading ? (
         <div className="space-y-3">{Array.from({length:3}).map((_,i) => <Skeleton key={i} className="h-16" />)}</div>
       ) : (comments ?? []).length === 0 ? (
-        <p className="text-gray-500 text-sm py-4 text-center">No comments yet. Start the discussion!</p>
+        <p className="text-muted-foreground/80 text-sm py-4 text-center">No comments yet. Start the discussion!</p>
       ) : (
         <div className="divide-y divide-surface-700">
           {(comments ?? []).map(comment => (
@@ -138,7 +138,7 @@ function DiscussionPanel({ wbsElement }: DiscussionPanelProps) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex gap-3 pt-2 border-t border-surface-600">
+      <form onSubmit={handleSubmit} className="flex gap-3 pt-2 border-t border-border">
         <Avatar name={user?.full_name} src={user?.avatar_url} size="sm" className="shrink-0 mt-1" />
         <div className="flex-1 flex gap-2">
           <textarea
@@ -170,7 +170,7 @@ export function DiscussionsPage() {
   if (!activeProject) {
     return (
       <div className="flex items-center justify-center h-80">
-        <p className="text-gray-500">Select a project to view discussions.</p>
+        <p className="text-muted-foreground/80">Select a project to view discussions.</p>
       </div>
     );
   }
@@ -178,18 +178,18 @@ export function DiscussionsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-white">Discussions</h1>
-        <p className="text-gray-400 text-sm mt-1">Comments tied to specific WBS elements · {activeProject.name}</p>
+        <h1 className="text-2xl font-bold text-foreground">Discussions</h1>
+        <p className="text-muted-foreground text-sm mt-1">Comments tied to specific WBS elements · {activeProject.name}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* WBS Element list */}
         <div className="card p-4 space-y-2 h-fit lg:sticky lg:top-6">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-1 mb-3">WBS Elements</p>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-3">WBS Elements</p>
           {isLoading ? (
             <div className="space-y-2">{Array.from({length:6}).map((_,i) => <Skeleton key={i} className="h-10" />)}</div>
           ) : flat.length === 0 ? (
-            <p className="text-gray-500 text-sm text-center py-4">No WBS elements yet.</p>
+            <p className="text-muted-foreground/80 text-sm text-center py-4">No WBS elements yet.</p>
           ) : flat.map(el => (
             <button
               key={el.id}
@@ -197,7 +197,7 @@ export function DiscussionsPage() {
               className={`w-full text-left px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
                 selectedId === el.id
                   ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30'
-                  : 'text-gray-400 hover:bg-surface-700 hover:text-white'
+                  : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
               }`}
             >
               <code className="text-xs text-brand-400 mr-2">{el.wbs_code}</code>
@@ -214,8 +214,8 @@ export function DiscussionsPage() {
             <div className="card p-12 flex flex-col items-center justify-center text-center gap-4 h-80">
               <MessageSquare className="w-10 h-10 text-gray-600" />
               <div>
-                <p className="text-white font-medium">Select a WBS element</p>
-                <p className="text-gray-500 text-sm mt-1">Choose an element from the list to view its discussion thread</p>
+                <p className="text-foreground font-medium">Select a WBS element</p>
+                <p className="text-muted-foreground/80 text-sm mt-1">Choose an element from the list to view its discussion thread</p>
               </div>
             </div>
           )}

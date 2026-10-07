@@ -47,8 +47,8 @@ export function WorkflowPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-white">Workflow Automation</h1>
-        <p className="text-sm text-gray-400 mt-0.5">
+        <h1 className="text-2xl font-bold text-foreground">Workflow Automation</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">
           {activeProject ? activeProject.name + ' · ' : ''}Trigger-based notifications and actions
         </p>
       </div>
@@ -58,14 +58,14 @@ export function WorkflowPage() {
         <div className="card px-4 py-3 flex items-center gap-3">
           <Zap className="w-4 h-4 text-brand-400" />
           <div>
-            <p className="text-[10px] text-gray-500 uppercase font-bold">Active Rules</p>
-            <p className="text-lg font-black text-white">{activeCount} / {rules.length}</p>
+            <p className="text-[10px] text-muted-foreground/80 uppercase font-bold">Active Rules</p>
+            <p className="text-lg font-black text-foreground">{activeCount} / {rules.length}</p>
           </div>
         </div>
         <div className={`card px-4 py-3 flex items-center gap-3 ${smtpConfigured ? 'border-emerald-500/30' : 'border-amber-500/20'}`}>
           <Mail className={`w-4 h-4 ${smtpConfigured ? 'text-emerald-400' : 'text-amber-400'}`} />
           <div>
-            <p className="text-[10px] text-gray-500 uppercase font-bold">Email (SMTP)</p>
+            <p className="text-[10px] text-muted-foreground/80 uppercase font-bold">Email (SMTP)</p>
             <p className={`text-sm font-bold ${smtpConfigured ? 'text-emerald-400' : 'text-amber-400'}`}>
               {smtpConfigured ? 'Configured' : 'Not connected'}
             </p>
@@ -77,7 +77,7 @@ export function WorkflowPage() {
         {/* Rules list */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-gray-300">Automation Rules</h3>
+            <h3 className="text-sm font-bold text-foreground/80">Automation Rules</h3>
             <button
               className="btn-primary btn-sm"
               onClick={() => setRules([...rules, {
@@ -104,7 +104,7 @@ export function WorkflowPage() {
                         WHEN
                       </span>
                       <select
-                        className="bg-surface-700 border border-surface-500 rounded-lg px-2 py-1 text-xs text-white outline-none focus:border-brand-500"
+                        className="bg-secondary border border-input rounded-lg px-2 py-1 text-xs text-foreground outline-none focus:border-brand-500"
                         value={rule.trigger}
                         onChange={e => setRules(rules.map(r => r.id === rule.id ? { ...r, trigger: e.target.value } : r))}
                       >
@@ -119,7 +119,7 @@ export function WorkflowPage() {
                         THEN
                       </span>
                       <select
-                        className="bg-surface-700 border border-surface-500 rounded-lg px-2 py-1 text-xs text-white outline-none focus:border-brand-500"
+                        className="bg-secondary border border-input rounded-lg px-2 py-1 text-xs text-foreground outline-none focus:border-brand-500"
                         value={rule.action}
                         onChange={e => setRules(rules.map(r => r.id === rule.id ? { ...r, action: e.target.value } : r))}
                       >
@@ -127,7 +127,7 @@ export function WorkflowPage() {
                       </select>
                       {rule.action === 'Send Email Notification' && (
                         <input
-                          className="bg-surface-700 border border-surface-500 rounded-lg px-2 py-1 text-xs text-white outline-none focus:border-brand-500 w-40"
+                          className="bg-secondary border border-input rounded-lg px-2 py-1 text-xs text-foreground outline-none focus:border-brand-500 w-40"
                           placeholder="recipient@email.com"
                           value={rule.recipient}
                           onChange={e => setRules(rules.map(r => r.id === rule.id ? { ...r, recipient: e.target.value } : r))}
@@ -152,7 +152,7 @@ export function WorkflowPage() {
         {/* Integration panel */}
         <div className="space-y-4">
           <div className="card p-5 space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Webhook Endpoint</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Webhook Endpoint</h3>
             <input
               className="input text-xs"
               placeholder="https://hooks.yourapp.com/..."
@@ -163,13 +163,13 @@ export function WorkflowPage() {
           </div>
 
           <div className="card p-5 space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
               <Mail className="w-3.5 h-3.5" /> Email Setup (Supabase Edge)
             </h3>
-            <p className="text-xs text-gray-500 leading-relaxed">
+            <p className="text-xs text-muted-foreground/80 leading-relaxed">
               To enable email notifications, configure the Supabase Edge Function with your SendGrid API key.
             </p>
-            <div className="bg-surface-700 rounded-lg p-3 font-mono text-[10px] text-gray-400 space-y-1">
+            <div className="bg-secondary rounded-lg p-3 font-mono text-[10px] text-muted-foreground space-y-1">
               <p className="text-brand-400"># supabase/.env</p>
               <p>SENDGRID_API_KEY=SG.xxx...</p>
               <p>FROM_EMAIL=noreply@s3t.app</p>
@@ -183,16 +183,16 @@ export function WorkflowPage() {
           </div>
 
           <div className="glass p-5 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">Recent Events</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/80">Recent Events</h3>
             {[
               { icon: CheckCircle2, msg: 'Status → completed triggered', time: 'Just now', color: 'text-emerald-400' },
-              { icon: AlertCircle,  msg: 'Blocked alert suppressed (disabled)', time: '2m ago', color: 'text-gray-500' },
+              { icon: AlertCircle,  msg: 'Blocked alert suppressed (disabled)', time: '2m ago', color: 'text-muted-foreground/80' },
               { icon: Bell,         msg: 'Email sent to pm@company.com', time: '1h ago', color: 'text-brand-400' },
             ].map((ev, i) => (
               <div key={i} className="flex items-start gap-2.5 text-[11px]">
                 <ev.icon className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${ev.color}`} />
                 <div>
-                  <p className="text-gray-300">{ev.msg}</p>
+                  <p className="text-foreground/80">{ev.msg}</p>
                   <p className="text-gray-600">{ev.time}</p>
                 </div>
               </div>

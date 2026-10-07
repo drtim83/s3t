@@ -9,6 +9,37 @@ export default {
         mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
+        },
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
+        },
+        surface: {
+          hover: 'hsl(var(--surface-hover))',
+          // legacy colors mapped to css vars or fixed colors to prevent breaking remaining hardcoded classes
+          900: 'hsl(var(--background))',
+          800: 'hsl(var(--card))',
+          750: 'hsl(var(--muted))',
+          700: 'hsl(var(--muted))',
+          600: 'hsl(var(--border))',
+          500: 'hsl(var(--muted-foreground))',
+          400: 'hsl(var(--muted-foreground))',
+        },
         brand: {
           50:  '#eef2ff',
           100: '#e0e7ff',
@@ -22,15 +53,6 @@ export default {
           900: '#312e81',
           950: '#1e1b4b',
         },
-        surface: {
-          900: '#0f0f13',
-          800: '#16161d',
-          750: '#1a1a24',
-          700: '#1e1e2e',
-          600: '#242436',
-          500: '#2a2a42',
-          400: '#363656',
-        },
         accent: {
           cyan:   '#06b6d4',
           violet: '#8b5cf6',
@@ -38,11 +60,6 @@ export default {
           amber:  '#f59e0b',
           emerald:'#10b981',
         },
-      },
-      backgroundImage: {
-        'gradient-brand': 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%)',
-        'gradient-dark':  'linear-gradient(180deg, #0f0f13 0%, #16161d 100%)',
-        'gradient-card':  'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
       },
       boxShadow: {
         'glow-brand': '0 0 20px rgba(99,102,241,0.35)',

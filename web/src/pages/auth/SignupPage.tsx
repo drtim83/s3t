@@ -7,7 +7,8 @@ import { Spinner } from '../../components/ui/Spinner';
 
 export function SignupPage() {
   const { signUp } = useAuth();
-  const { success, error: toastError } = useToast();
+  const { error: toastError } = useToast();
+
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
@@ -30,8 +31,7 @@ export function SignupPage() {
     setLoading(true);
     try {
       await signUp(form.email, form.password, form.name);
-      success('Account created!', 'Check your email to verify your account.');
-      navigate('/auth/login');
+      navigate('/dashboard');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Signup failed';
       toastError('Sign up failed', msg);
@@ -40,30 +40,34 @@ export function SignupPage() {
     }
   }
 
+  // ── Sign-up form ─────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex items-center justify-center p-8">
+    <div className="min-h-screen flex items-center justify-center p-8 bg-background">
       <div className="w-full max-w-md space-y-8 animate-slide-up">
+        {/* Logo */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-brand flex items-center justify-center shadow-glow-brand">
-            <Zap className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+            <Zap className="w-6 h-6 text-primary-foreground" />
           </div>
-          <span className="text-white font-bold text-lg">S3T</span>
+          <span className="text-foreground font-bold text-lg">S3T</span>
         </div>
 
         <div>
-          <h2 className="text-3xl font-bold text-white">Create your account</h2>
-          <p className="text-gray-400 mt-2">Start managing projects smarter</p>
+          <h2 className="text-3xl font-bold text-foreground">Create your account</h2>
+          <p className="text-muted-foreground mt-2">Start managing projects smarter</p>
         </div>
+
+
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {[
-            { id: 'name', label: 'Full name', type: 'text', icon: User, placeholder: 'Jane Smith', key: 'name' },
-            { id: 'email', label: 'Email address', type: 'email', icon: Mail, placeholder: 'jane@company.com', key: 'email' },
+            { id: 'name',  label: 'Full name',      type: 'text',  icon: User, placeholder: 'Jane Smith',         key: 'name'  },
+            { id: 'email', label: 'Email address',  type: 'email', icon: Mail, placeholder: 'jane@company.com',   key: 'email' },
           ].map(({ id, label, type, icon: Icon, placeholder, key }) => (
             <div key={id}>
               <label htmlFor={id} className="label">{label}</label>
               <div className="relative">
-                <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/80" />
                 <input
                   id={id} type={type} value={form[key as keyof typeof form]}
                   onChange={set(key)} placeholder={placeholder}
@@ -77,14 +81,14 @@ export function SignupPage() {
           <div>
             <label htmlFor="password" className="label">Password</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/80" />
               <input
                 id="password" type={showPw ? 'text' : 'password'} value={form.password}
                 onChange={set('password')} placeholder="Min. 8 characters"
                 className={`input pl-10 pr-10 ${errors.password ? 'input-error' : ''}`}
               />
               <button type="button" onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white">
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/80 hover:text-foreground">
                 {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
@@ -94,7 +98,7 @@ export function SignupPage() {
           <div>
             <label htmlFor="confirm" className="label">Confirm password</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/80" />
               <input
                 id="confirm" type="password" value={form.confirm}
                 onChange={set('confirm')} placeholder="Repeat password"
@@ -109,9 +113,9 @@ export function SignupPage() {
           </button>
         </form>
 
-        <p className="text-center text-gray-500 text-sm">
+        <p className="text-center text-muted-foreground/80 text-sm">
           Already have an account?{' '}
-          <Link to="/auth/login" className="text-brand-400 hover:text-brand-300 font-medium transition-colors">Sign in</Link>
+          <Link to="/auth/login" className="text-primary hover:text-primary/80 font-medium transition-colors">Sign in</Link>
         </p>
       </div>
     </div>

@@ -17,13 +17,13 @@ export function Spinner({ size = 'md', className }: SpinnerProps) {
 
 export function PageLoader() {
   return (
-    <div className="fixed inset-0 bg-surface-900 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-brand flex items-center justify-center shadow-glow-brand">
-          <span className="text-white font-bold text-xl">E3</span>
+        <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-sm">
+          <span className="text-foreground font-bold text-xl">S3</span>
         </div>
         <Spinner size="lg" />
-        <p className="text-gray-400 text-sm animate-pulse-slow">Loading platform…</p>
+        <p className="text-muted-foreground text-sm animate-pulse-slow">Loading platform…</p>
       </div>
     </div>
   );

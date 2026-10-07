@@ -29,10 +29,10 @@ export function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center p-8">
       <div className="w-full max-w-md space-y-8 animate-slide-up">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-brand flex items-center justify-center shadow-glow-brand">
-            <Zap className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+            <Zap className="w-6 h-6 text-primary-foreground" />
           </div>
-          <span className="text-white font-bold text-lg">S3T</span>
+          <span className="text-foreground font-bold text-lg">S3T</span>
         </div>
 
         {sent ? (
@@ -40,9 +40,9 @@ export function ForgotPasswordPage() {
             <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto">
               <CheckCircle className="w-8 h-8 text-emerald-400" />
             </div>
-            <h2 className="text-2xl font-bold text-white">Check your inbox</h2>
-            <p className="text-gray-400">
-              We sent a password reset link to <strong className="text-white">{email}</strong>.
+            <h2 className="text-2xl font-bold text-foreground">Check your inbox</h2>
+            <p className="text-muted-foreground">
+              We sent a password reset link to <strong className="text-foreground">{email}</strong>.
             </p>
             <Link to="/auth/login" className="btn-secondary w-full justify-center mt-4">
               <ArrowLeft className="w-4 h-4" /> Back to sign in
@@ -51,14 +51,14 @@ export function ForgotPasswordPage() {
         ) : (
           <>
             <div>
-              <h2 className="text-3xl font-bold text-white">Reset password</h2>
-              <p className="text-gray-400 mt-2">We&apos;ll send you a link to reset your password.</p>
+              <h2 className="text-3xl font-bold text-foreground">Reset password</h2>
+              <p className="text-muted-foreground mt-2">We&apos;ll send you a link to reset your password.</p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label htmlFor="email" className="label">Email address</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/80" />
                   <input
                     id="email" type="email" value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -72,7 +72,7 @@ export function ForgotPasswordPage() {
                 {loading ? <Spinner size="sm" /> : 'Send reset link'}
               </button>
             </form>
-            <Link to="/auth/login" className="flex items-center gap-2 text-gray-400 hover:text-white text-sm transition-colors">
+            <Link to="/auth/login" className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back to sign in
             </Link>
           </>
