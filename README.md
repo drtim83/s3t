@@ -1,6 +1,16 @@
 # S3T — Solutioning, Sizing and Scoping Tool
 
-**S3T** is a modern, enterprise-grade cloud solution designed for solution architects, presales engineers, and delivery teams to collaboratively size, scope, estimate, and generate Statements of Work (SOW) and cost models with high precision.
+[![Live App](https://img.shields.io/badge/Live%20App-s3t--platform.netlify.app-blue?style=flat-square)](https://s3t-platform.netlify.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
+
+**S3T** is a modern, enterprise-grade cloud platform designed for solution architects, presales engineers, and delivery teams to collaboratively size, scope, estimate, and generate Statements of Work (SOW) and cost models with high precision.
+
+---
+
+## 🌐 Live Application
+
+- **Production URL:** [https://s3t-platform.netlify.app](https://s3t-platform.netlify.app)
+- **Repository:** [https://github.com/drtim83/s3t](https://github.com/drtim83/s3t)
 
 ---
 
@@ -22,21 +32,20 @@
 ### Web App (`web/`)
 - **Framework:** React 19 + TypeScript + Vite
 - **Styling:** Tailwind CSS + Radix UI / Lucide icons
-- **State & Data:** Supabase JS Client (`@supabase/supabase-js`), Date-fns, Recharts
+- **State & Data:** TanStack React Query, Zustand, Date-fns, Recharts
 - **Exporting:** `docx`, `jspdf`, `jspdf-autotable`, `html2canvas`
+
+### Backend & Cloud Services
+- **Backend as a Service:** Google Firebase
+- **Authentication:** Firebase Auth (Email & Password, Profile sync)
+- **Database:** Cloud Firestore (Document Store with offline caching and real-time synchronization)
+- **Security:** Granular Firestore Security Rules (`firestore.rules`)
+- **Analytics:** Google Analytics 4 (`measurementId`)
 
 ### Mobile App (`mobile/`)
 - **Framework:** React Native + Expo SDK 53 + TypeScript
 - **State:** Zustand
 - **Navigation:** React Navigation (Native Stack)
-
-### Backend & Database (`supabase/`)
-- **Database:** PostgreSQL with Row Level Security (RLS)
-- **Authentication:** Supabase Auth (Email / Password)
-- **Migrations:**
-  - `001_initial_schema.sql`: Base tables (organizations, projects, members, WBS items, rates, procurement, approvals)
-  - `002_additional_users.sql`: Seed users and organization memberships
-  - `003_presales_features.sql`: Templates, secure token sharing, project cloning RPCs, and hardened RLS
 
 ---
 
@@ -60,7 +69,19 @@ Build for production:
 npm run build
 ```
 
-### 2. Mobile Application
+### 2. Environment Variables (`web/.env`)
+
+```env
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-messaging-id
+VITE_FIREBASE_APP_ID=your-app-id
+VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
+```
+
+### 3. Mobile Application
 
 ```bash
 cd mobile
@@ -69,12 +90,12 @@ cp .env.example .env
 npx expo start
 ```
 
-### 3. Database Setup
+### 4. Deploying Firestore Security Rules
 
-Apply the SQL migration files in sequence using the Supabase SQL Editor:
-1. `supabase/migrations/001_initial_schema.sql`
-2. `supabase/migrations/002_additional_users.sql`
-3. `supabase/migrations/003_presales_features.sql`
+Deploy the rules in `firestore.rules` via the Firebase Console or Firebase CLI:
+```bash
+firebase deploy --only firestore:rules
+```
 
 ---
 
