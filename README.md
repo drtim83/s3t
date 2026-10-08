@@ -99,6 +99,15 @@ firebase deploy --only firestore:rules
 
 ---
 
+## 👨‍💻 Author & Credits
+
+**Designed, Architected, and Developed by:**
+### **Dr Timothy Tok**
+- **GitHub:** [@drtim83](https://github.com/drtim83)
+- **Live Platform:** [https://s3t-platform.netlify.app](https://s3t-platform.netlify.app)
+
+---
+
 ## 📄 License
 
 MIT

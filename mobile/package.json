@@ -1,6 +1,7 @@
 {
   "name": "s3t-mobile",
   "version": "1.0.0",
+  "author": "Dr Timothy Tok (https://github.com/drtim83)",
   "main": "index.ts",
   "scripts": {
     "start": "npx expo start",
