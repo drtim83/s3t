@@ -6,7 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { onAuthStateChanged } from 'firebase/auth';
 
 import { auth } from './lib/firebase';
-import { getProfile, upsertProfile } from './lib/firestoreService';
+import { ensureProfile } from './lib/firestoreService';
 import { useAuthStore } from './store';
 import AuthNavigator from './navigation/AuthNavigator';
 import AppNavigator from './navigation/AppNavigator';
@@ -20,17 +20,14 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       try {
         if (fbUser) {
-          let profile = await getProfile(fbUser.uid);
-          if (!profile) {
-            profile = await upsertProfile({
-              id: fbUser.uid,
-              email: fbUser.email?.toLowerCase() ?? null,
-              full_name:
-                fbUser.displayName || fbUser.email?.split('@')[0] || 'User',
-              avatar_url: null,
-              job_title: 'Solution Architect',
-            });
-          }
+          const profile = await ensureProfile({
+            id: fbUser.uid,
+            email: fbUser.email?.toLowerCase() ?? null,
+            full_name:
+              fbUser.displayName || fbUser.email?.split('@')[0] || 'User',
+            avatar_url: null,
+            job_title: 'Solution Architect',
+          });
           setUser(profile);
         } else {
           clearAuth();

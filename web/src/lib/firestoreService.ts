@@ -10,6 +10,7 @@ import {
   query,
   where,
   orderBy,
+  runTransaction,
   writeBatch
 } from 'firebase/firestore';
 import { db } from './firebase';
@@ -30,6 +31,29 @@ export async function getProfile(userId: string): Promise<Profile | null> {
   const snap = await getDoc(ref);
   if (!snap.exists()) return null;
   return { id: snap.id, ...snap.data() } as Profile;
+}
+
+export async function ensureProfile(profile: Partial<Profile> & { id: string }): Promise<Profile> {
+  const ref = doc(db, 'users', profile.id);
+  return runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    if (snap.exists()) {
+      return { id: snap.id, ...snap.data() } as Profile;
+    }
+    const now = new Date().toISOString();
+    const data: Profile = {
+      id: profile.id,
+      org_id: profile.org_id ?? 'default-org',
+      email: profile.email?.toLowerCase() ?? null,
+      full_name: profile.full_name ?? null,
+      avatar_url: profile.avatar_url ?? null,
+      job_title: profile.job_title ?? null,
+      created_at: now,
+      updated_at: now,
+    };
+    tx.set(ref, data);
+    return data;
+  });
 }
 
 export async function upsertProfile(profile: Partial<Profile> & { id: string }): Promise<Profile> {
@@ -118,11 +142,32 @@ export async function createProjectDoc(payload: Partial<Project>, currentUserId?
 
 export async function updateProjectDoc(id: string, payload: Partial<Project>): Promise<Project> {
   const ref = doc(db, 'projects', id);
+  const now = new Date().toISOString();
   const updateData = {
     ...payload,
-    updated_at: new Date().toISOString(),
+    updated_at: now,
   };
   await updateDoc(ref, updateData);
+
+  if (payload.is_shared !== undefined) {
+    const wbsSnap = await getDocs(
+      query(collection(db, 'wbs_elements'), where('project_id', '==', id))
+    );
+    if (!wbsSnap.empty) {
+      const isShared = Boolean(payload.is_shared);
+      for (let i = 0; i < wbsSnap.docs.length; i += 450) {
+        const batch = writeBatch(db);
+        for (const wbsDoc of wbsSnap.docs.slice(i, i + 450)) {
+          batch.update(wbsDoc.ref, {
+            is_shared: isShared,
+            updated_at: now,
+          });
+        }
+        await batch.commit();
+      }
+    }
+  }
+
   return fetchProject(id);
 }
 
@@ -153,19 +198,23 @@ export async function cloneProjectDoc(
 
   const sourceWBS = await fetchWBSElements(sourceId);
   if (sourceWBS.length > 0) {
-    const batch = writeBatch(db);
-    for (const item of sourceWBS) {
-      const rest = { ...item };
-      delete (rest as { id?: string }).id;
-      const newWBSRef = doc(collection(db, 'wbs_elements'));
-      batch.set(newWBSRef, {
-        ...rest,
-        project_id: newProject.id,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      });
+    const now = new Date().toISOString();
+    for (let i = 0; i < sourceWBS.length; i += 450) {
+      const batch = writeBatch(db);
+      for (const item of sourceWBS.slice(i, i + 450)) {
+        const rest = { ...item };
+        delete (rest as { id?: string }).id;
+        const newWBSRef = doc(collection(db, 'wbs_elements'));
+        batch.set(newWBSRef, {
+          ...rest,
+          project_id: newProject.id,
+          is_shared: false,
+          created_at: now,
+          updated_at: now,
+        });
+      }
+      await batch.commit();
     }
-    await batch.commit();
   }
 
   return newProject.id;
@@ -201,6 +250,18 @@ export async function createWBSElementDoc(
   payload: Partial<WBSElement>
 ): Promise<WBSElement> {
   const now = new Date().toISOString();
+  let isShared = false;
+  if (payload.is_shared !== undefined) {
+    isShared = Boolean(payload.is_shared);
+  } else if (payload.project_id) {
+    try {
+      const parentProject = await fetchProject(payload.project_id);
+      isShared = Boolean(parentProject.is_shared);
+    } catch {
+      isShared = false;
+    }
+  }
+
   const data: Omit<WBSElement, 'id'> = {
     project_id: payload.project_id || '',
     parent_id: payload.parent_id || null,
@@ -216,6 +277,7 @@ export async function createWBSElementDoc(
     end_date: payload.end_date || null,
     assigned_to: payload.assigned_to || null,
     sort_order: payload.sort_order ?? 0,
+    is_shared: isShared,
     created_by: payload.created_by || null,
     created_at: now,
     updated_at: now,
@@ -306,7 +368,16 @@ export async function fetchSharedProject(token: string): Promise<SharedProject> 
 
   const pDoc = snap.docs[0];
   const pData = pDoc.data();
-  const wbsItems = await fetchWBSElements(pDoc.id);
+  const wbsSnap = await getDocs(
+    query(
+      collection(db, 'wbs_elements'),
+      where('project_id', '==', pDoc.id),
+      where('is_shared', '==', true)
+    )
+  );
+  const wbsItems = wbsSnap.docs
+    .map(d => ({ id: d.id, ...d.data() } as WBSElement))
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
   const sharedWBS: SharedWBSElement[] = wbsItems.map(item => ({
     id: item.id,

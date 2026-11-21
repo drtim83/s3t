@@ -5,6 +5,7 @@ import {
   getDocs,
   orderBy,
   query,
+  runTransaction,
   setDoc,
 } from 'firebase/firestore';
 import { db } from './firebase';
@@ -15,6 +16,31 @@ export async function getProfile(userId: string): Promise<Profile | null> {
   const snap = await getDoc(ref);
   if (!snap.exists()) return null;
   return { id: snap.id, ...snap.data() } as Profile;
+}
+
+export async function ensureProfile(
+  profile: Partial<Profile> & { id: string }
+): Promise<Profile> {
+  const ref = doc(db, 'users', profile.id);
+  return runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    if (snap.exists()) {
+      return { id: snap.id, ...snap.data() } as Profile;
+    }
+    const now = new Date().toISOString();
+    const data: Profile = {
+      id: profile.id,
+      org_id: profile.org_id ?? 'default-org',
+      email: profile.email?.toLowerCase() ?? null,
+      full_name: profile.full_name ?? null,
+      avatar_url: profile.avatar_url ?? null,
+      job_title: profile.job_title ?? null,
+      created_at: now,
+      updated_at: now,
+    };
+    tx.set(ref, data);
+    return data;
+  });
 }
 
 export async function upsertProfile(

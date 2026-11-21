@@ -16,6 +16,7 @@ import type { AuthStackParamList } from '../navigation/types';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { upsertProfile } from '../lib/firestoreService';
+import { useAuthStore } from '../store';
 import { Colors, Typography, Spacing, Radius } from '../theme/tokens';
 
 type Props = {
@@ -54,13 +55,14 @@ export default function SignupScreen({ navigation }: Props) {
       if (trimmedName) {
         await updateProfile(cred.user, { displayName: trimmedName });
       }
-      await upsertProfile({
+      const profile = await upsertProfile({
         id: cred.user.uid,
         email: email.trim().toLowerCase(),
         full_name: trimmedName,
         avatar_url: null,
         job_title: 'Solution Architect',
       });
+      useAuthStore.getState().setUser(profile);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unable to create account';
       Alert.alert('Sign up failed', msg);

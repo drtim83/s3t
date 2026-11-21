@@ -42,7 +42,7 @@ export type Project = {
   created_by: string | null;
   created_at: string;
   updated_at: string;
-  // added in 003_presales_features.sql
+  // presales template and client-sharing fields
   is_template: boolean | null;
   is_shared: boolean | null;
   share_token: string | null;
@@ -73,6 +73,7 @@ export type WBSElement = {
   end_date: string | null;
   assigned_to: string | null;
   sort_order: number;
+  is_shared?: boolean;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -176,7 +177,7 @@ export type AuditEntry = {
   created_at: string;
 }
 
-// Shape returned by the get_shared_project() RPC (public client share link)
+// Shape returned by fetchSharedProject() (public client share link)
 export type SharedWBSElement = Pick<
   WBSElement,
   'id' | 'parent_id' | 'wbs_code' | 'level' | 'name' | 'description' | 'status' | 'phase' | 'effort_hours' | 'start_date' | 'end_date' | 'sort_order'
