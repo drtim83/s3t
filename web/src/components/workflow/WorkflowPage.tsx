@@ -164,20 +164,20 @@ export function WorkflowPage() {
 
           <div className="card p-5 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-              <Mail className="w-3.5 h-3.5" /> Email Setup (Supabase Edge)
+              <Mail className="w-3.5 h-3.5" /> Email Setup (Firebase Functions)
             </h3>
             <p className="text-xs text-muted-foreground/80 leading-relaxed">
-              To enable email notifications, configure the Supabase Edge Function with your SendGrid API key.
+              To enable email notifications, configure Firebase Cloud Functions with your SendGrid API key.
             </p>
             <div className="bg-secondary rounded-lg p-3 font-mono text-[10px] text-muted-foreground space-y-1">
-              <p className="text-brand-400"># supabase/.env</p>
+              <p className="text-brand-400"># functions/.env</p>
               <p>SENDGRID_API_KEY=SG.xxx...</p>
               <p>FROM_EMAIL=noreply@s3t.app</p>
             </div>
             <div className="flex items-start gap-2 bg-amber-500/10 rounded-lg p-3 border border-amber-500/20">
               <Info className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
               <p className="text-[10px] text-amber-300 leading-relaxed">
-                Deploy the <code className="text-amber-400">notify-on-status-change</code> Edge Function from your Supabase dashboard to activate email triggers.
+                Deploy the <code className="text-amber-400">notifyOnStatusChange</code> Cloud Function from your Firebase project to activate email triggers.
               </p>
             </div>
           </div>

@@ -114,7 +114,7 @@ export function HelpPage() {
 
       {/* Footer */}
       <div className="text-center py-4 border-t border-border">
-        <p className="text-xs text-gray-600">S3T v1.0 · Created by Dr Ming Chan Tok · © 1 May 2026 · Built on React + Supabase + Netlify</p>
+        <p className="text-xs text-gray-600">S3T v1.0 · Created by Dr Ming Chan Tok · © 1 May 2026 · Built on React + Firebase + Netlify</p>
       </div>
     </div>
   );

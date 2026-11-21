@@ -1,5 +1,4 @@
-// Shared DB types — mirrored from web/src/lib/database.types.ts
-// Update this file after running `supabase gen types typescript`
+// Shared domain types mirrored from web/src/lib/database.types.ts (Cloud Firestore)
 
 export type ProjectRole = 'Admin' | 'PM' | 'Contributor' | 'Viewer';
 export type WBSStatus = 'not_started' | 'in_progress' | 'blocked' | 'completed' | 'cancelled';
@@ -19,6 +18,7 @@ export interface Organization {
 export interface Profile {
   id: string;
   org_id: string | null;
+  email?: string | null;
   full_name: string | null;
   avatar_url: string | null;
   job_title: string | null;
@@ -38,6 +38,9 @@ export interface Project {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  is_template?: boolean | null;
+  is_shared?: boolean | null;
+  share_token?: string | null;
 }
 
 export interface ProjectMember {
@@ -78,20 +81,4 @@ export interface Milestone {
   status: MilestoneStatus;
   created_by: string | null;
   created_at: string;
-}
-
-// Stub for Supabase client typing
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
-
-export interface Database {
-  public: {
-    Tables: {
-      organizations:   { Row: Organization;   Insert: Partial<Organization>;   Update: Partial<Organization>   };
-      profiles:        { Row: Profile;        Insert: Partial<Profile>;        Update: Partial<Profile>        };
-      projects:        { Row: Project;        Insert: Partial<Project>;        Update: Partial<Project>        };
-      project_members: { Row: ProjectMember;  Insert: Partial<ProjectMember>;  Update: Partial<ProjectMember>  };
-      wbs_elements:    { Row: WBSElement;     Insert: Partial<WBSElement>;     Update: Partial<WBSElement>     };
-      milestones:      { Row: Milestone;      Insert: Partial<Milestone>;      Update: Partial<Milestone>      };
-    };
-  };
 }

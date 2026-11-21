@@ -21,6 +21,7 @@ export function useAuth() {
         // Automatically bootstrap user profile in Firestore
         profile = await upsertProfile({
           id: userId,
+          email: email?.toLowerCase() ?? null,
           full_name: displayName || email?.split('@')[0] || 'User',
           avatar_url: null,
           job_title: 'Solution Architect',
@@ -61,6 +62,7 @@ export function useAuth() {
     }
     const profile = await upsertProfile({
       id: credential.user.uid,
+      email: email.toLowerCase(),
       full_name: fullName,
       avatar_url: null,
       job_title: 'Solution Architect',

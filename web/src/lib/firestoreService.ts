@@ -39,6 +39,7 @@ export async function upsertProfile(profile: Partial<Profile> & { id: string }):
   const data: Profile = {
     id: profile.id,
     org_id: profile.org_id ?? existing?.org_id ?? 'default-org',
+    email: profile.email?.toLowerCase() ?? existing?.email ?? null,
     full_name: profile.full_name ?? existing?.full_name ?? null,
     avatar_url: profile.avatar_url ?? existing?.avatar_url ?? null,
     job_title: profile.job_title ?? existing?.job_title ?? null,

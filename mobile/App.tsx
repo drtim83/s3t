@@ -1,50 +1,51 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { onAuthStateChanged } from 'firebase/auth';
 
-import { supabase } from './lib/supabase';
+import { auth } from './lib/firebase';
+import { getProfile, upsertProfile } from './lib/firestoreService';
 import { useAuthStore } from './store';
 import AuthNavigator from './navigation/AuthNavigator';
 import AppNavigator from './navigation/AppNavigator';
 import { Colors } from './theme/tokens';
-import type { Profile } from './lib/database.types';
 
 export default function App() {
-  const { user, setUser, setLoading, isLoading } = useAuthStore();
+  const { user, setUser, setLoading, clearAuth, isLoading } = useAuthStore();
 
-  // ── Bootstrap: listen for auth state changes ─────────────────────────
+  // ── Bootstrap: listen for Firebase auth state changes ───────────────────
   useEffect(() => {
-    // Check initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        await loadProfile(session.user.id);
-      }
-      setLoading(false);
-    });
-
-    // Subscribe to future auth changes
-    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        await loadProfile(session.user.id);
-      } else if (event === 'SIGNED_OUT') {
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      try {
+        if (fbUser) {
+          let profile = await getProfile(fbUser.uid);
+          if (!profile) {
+            profile = await upsertProfile({
+              id: fbUser.uid,
+              email: fbUser.email?.toLowerCase() ?? null,
+              full_name:
+                fbUser.displayName || fbUser.email?.split('@')[0] || 'User',
+              avatar_url: null,
+              job_title: 'Solution Architect',
+            });
+          }
+          setUser(profile);
+        } else {
+          clearAuth();
+        }
+      } catch (err) {
+        console.error('[S3T Mobile] Failed to load profile:', err);
         setUser(null);
+      } finally {
+        setLoading(false);
       }
     });
 
-    return () => listener.subscription.unsubscribe();
+    return () => unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const loadProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    setUser(data as Profile | null);
-  };
 
   // ── Splash / loading gate ──────────────────────────────────────────────
   if (isLoading) {
