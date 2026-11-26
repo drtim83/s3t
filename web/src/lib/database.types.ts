@@ -1,7 +1,4 @@
-// Hand-maintained to mirror supabase/migrations. Replace with the output of
-// `supabase gen types typescript` once the CLI is linked to the project.
-// NOTE: rows are `type` aliases (not interfaces) so they satisfy supabase-js's
-// `Record<string, unknown>` constraint.
+// Shared domain types for S3T (Cloud Firestore)
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -25,6 +22,7 @@ export type Organization = {
 export type Profile = {
   id: string;
   org_id: string | null;
+  email?: string | null;
   full_name: string | null;
   avatar_url: string | null;
   job_title: string | null;
@@ -44,7 +42,7 @@ export type Project = {
   created_by: string | null;
   created_at: string;
   updated_at: string;
-  // added in 003_presales_features.sql
+  // presales template and client-sharing fields
   is_template: boolean | null;
   is_shared: boolean | null;
   share_token: string | null;
@@ -75,6 +73,7 @@ export type WBSElement = {
   end_date: string | null;
   assigned_to: string | null;
   sort_order: number;
+  is_shared?: boolean;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -178,52 +177,11 @@ export type AuditEntry = {
   created_at: string;
 }
 
-// Shape returned by the get_shared_project() RPC (public client share link)
+// Shape returned by fetchSharedProject() (public client share link)
 export type SharedWBSElement = Pick<
   WBSElement,
   'id' | 'parent_id' | 'wbs_code' | 'level' | 'name' | 'description' | 'status' | 'phase' | 'effort_hours' | 'start_date' | 'end_date' | 'sort_order'
 >;
 export type SharedProject = Pick<Project, 'id' | 'name' | 'description' | 'start_date' | 'end_date' | 'status'> & {
   wbs: SharedWBSElement[];
-};
-
-type TableDef<Row> = {
-  Row: Row;
-  Insert: Partial<Row>;
-  Update: Partial<Row>;
-  Relationships: [];
-};
-
-// Supabase client typing — must match supabase-js GenericSchema shape
-export type Database = {
-  public: {
-    Tables: {
-      organizations:    TableDef<Organization>;
-      profiles:         TableDef<Profile>;
-      projects:         TableDef<Project>;
-      project_members:  TableDef<ProjectMember>;
-      wbs_elements:     TableDef<WBSElement>;
-      wbs_dependencies: TableDef<WBSDependency>;
-      scope_documents:  TableDef<ScopeDocument>;
-      discussions:      TableDef<Discussion>;
-      resources:        TableDef<Resource>;
-      milestones:       TableDef<Milestone>;
-      webhooks:         TableDef<Webhook>;
-      ai_jobs:          TableDef<AIJob>;
-      audit_log:        TableDef<AuditEntry>;
-    };
-    Views: { [_ in never]: never };
-    Functions: {
-      clone_project: {
-        Args: { source_id: string; new_name: string; p_is_template: boolean };
-        Returns: string;
-      };
-      get_shared_project: {
-        Args: { p_token: string };
-        Returns: Json;
-      };
-    };
-    Enums: { [_ in never]: never };
-    CompositeTypes: { [_ in never]: never };
-  };
 };

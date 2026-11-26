@@ -8,7 +8,7 @@ import {
   updateProfile as firebaseUpdateProfile,
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
-import { getProfile, upsertProfile } from '../lib/firestoreService';
+import { ensureProfile, upsertProfile } from '../lib/firestoreService';
 import { useAuthStore } from '../store';
 
 export function useAuth() {
@@ -16,16 +16,13 @@ export function useAuth() {
 
   async function loadProfile(userId: string, email?: string | null, displayName?: string | null) {
     try {
-      let profile = await getProfile(userId);
-      if (!profile) {
-        // Automatically bootstrap user profile in Firestore
-        profile = await upsertProfile({
-          id: userId,
-          full_name: displayName || email?.split('@')[0] || 'User',
-          avatar_url: null,
-          job_title: 'Solution Architect',
-        });
-      }
+      const profile = await ensureProfile({
+        id: userId,
+        email: email?.toLowerCase() ?? null,
+        full_name: displayName || email?.split('@')[0] || 'User',
+        avatar_url: null,
+        job_title: 'Solution Architect',
+      });
       setUser(profile);
     } catch (err) {
       console.error('Unexpected profile error:', err);
@@ -61,6 +58,7 @@ export function useAuth() {
     }
     const profile = await upsertProfile({
       id: credential.user.uid,
+      email: email.toLowerCase(),
       full_name: fullName,
       avatar_url: null,
       job_title: 'Solution Architect',

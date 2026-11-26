@@ -10,7 +10,9 @@ import {
   StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { supabase } from '../lib/supabase';
+import { signOut } from 'firebase/auth';
+import { auth } from '../lib/firebase';
+import { fetchProjects as fetchFirestoreProjects } from '../lib/firestoreService';
 import { useAuthStore } from '../store';
 import { Colors, Typography, Spacing, Radius } from '../theme/tokens';
 import type { Project } from '../lib/database.types';
@@ -79,15 +81,11 @@ export default function DashboardScreen() {
 
   const fetchProjects = useCallback(async () => {
     setError(null);
-    const { data, error: err } = await supabase
-      .from('projects')
-      .select('*')
-      .order('updated_at', { ascending: false });
-
-    if (err) {
-      setError(err.message);
-    } else {
-      setProjects(data ?? []);
+    try {
+      const data = await fetchFirestoreProjects();
+      setProjects(data);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to load projects');
     }
   }, []);
 
@@ -102,7 +100,7 @@ export default function DashboardScreen() {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await signOut(auth);
     clearAuth();
   };
 

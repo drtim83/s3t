@@ -13,7 +13,8 @@ import {
 } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../navigation/types';
-import { supabase } from '../lib/supabase';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 import { Colors, Typography, Spacing, Radius } from '../theme/tokens';
 
 type Props = {
@@ -31,12 +32,14 @@ export default function ForgotPasswordScreen({ navigation }: Props) {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
-    setLoading(false);
-    if (error) {
-      Alert.alert('Error', error.message);
-    } else {
+    try {
+      await sendPasswordResetEmail(auth, email.trim());
       setSent(true);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unable to send reset email';
+      Alert.alert('Error', msg);
+    } finally {
+      setLoading(false);
     }
   };
 

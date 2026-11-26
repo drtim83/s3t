@@ -13,7 +13,10 @@ import {
 } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../navigation/types';
-import { supabase } from '../lib/supabase';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth } from '../lib/firebase';
+import { upsertProfile } from '../lib/firestoreService';
+import { useAuthStore } from '../store';
 import { Colors, Typography, Spacing, Radius } from '../theme/tokens';
 
 type Props = {
@@ -42,21 +45,29 @@ export default function SignupScreen({ navigation }: Props) {
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-      options: { data: { full_name: fullName.trim() } },
-    });
-    setLoading(false);
-
-    if (error) {
-      Alert.alert('Sign up failed', error.message);
-    } else {
-      Alert.alert(
-        'Check your email',
-        'We sent you a confirmation link. Please verify your email then sign in.',
-        [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
+    try {
+      const cred = await createUserWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
       );
+      const trimmedName = fullName.trim();
+      if (trimmedName) {
+        await updateProfile(cred.user, { displayName: trimmedName });
+      }
+      const profile = await upsertProfile({
+        id: cred.user.uid,
+        email: email.trim().toLowerCase(),
+        full_name: trimmedName,
+        avatar_url: null,
+        job_title: 'Solution Architect',
+      });
+      useAuthStore.getState().setUser(profile);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unable to create account';
+      Alert.alert('Sign up failed', msg);
+    } finally {
+      setLoading(false);
     }
   };
 

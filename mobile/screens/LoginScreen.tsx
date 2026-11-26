@@ -13,7 +13,8 @@ import {
 } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../navigation/types';
-import { supabase } from '../lib/supabase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 import { Colors, Typography, Spacing, Radius } from '../theme/tokens';
 
 type Props = {
@@ -31,10 +32,13 @@ export default function LoginScreen({ navigation }: Props) {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-    setLoading(false);
-    if (error) {
-      Alert.alert('Login failed', error.message);
+    try {
+      await signInWithEmailAndPassword(auth, email.trim(), password);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unable to sign in';
+      Alert.alert('Login failed', msg);
+    } finally {
+      setLoading(false);
     }
     // On success, the auth listener in App.tsx will automatically navigate to AppStack
   };

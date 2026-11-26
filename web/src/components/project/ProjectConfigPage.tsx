@@ -82,15 +82,15 @@ export function ProjectConfigPage() {
     setSharing(true);
     try {
       let project = activeProject;
-      // get_shared_project() only returns projects with is_shared = true,
-      // so the link is dead until sharing is switched on.
-      if (!project.is_shared) {
-        project = await updateProject.mutateAsync({ id: project.id, is_shared: true });
+      // Shared links are resolved by share_token + is_shared === true in Firestore.
+      if (!project.is_shared || !project.share_token) {
+        const shareToken = project.share_token || crypto.randomUUID();
+        project = await updateProject.mutateAsync({
+          id: project.id,
+          is_shared: true,
+          share_token: shareToken,
+        });
         setActiveProject(project);
-      }
-      if (!project.share_token) {
-        toastError('Cannot share', 'Share token missing — apply migration 003 in Supabase.');
-        return;
       }
       const url = `${window.location.origin}/share/${project.share_token}`;
       await navigator.clipboard.writeText(url);
